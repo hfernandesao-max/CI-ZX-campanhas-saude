@@ -318,7 +318,13 @@ const BASE = location.origin + location.pathname.replace(/index\.html$/, "");
 const $ = (s) => document.querySelector(s);
 const L = ["A", "B", "C", "D"];
 const params = new URLSearchParams(location.search);
-const SALA = (params.get("sala") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+let salaGuardada = "";
+try { salaGuardada = sessionStorage.getItem("or26-sala-jogo") || ""; } catch (e) {}
+const SALA = ((params.get("sala") || salaGuardada || "")).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+if (SALA) { try { sessionStorage.setItem("or26-sala-jogo", SALA); } catch (e) {} }
+// O endereço fica sempre limpo na barra do navegador (sem #inicio, #ranking ou ?sala=…)
+if (location.hash || location.search) history.replaceState(null, "", location.pathname);
+let vista = "";
 
 /* ---------- QR ---------- */
 function qrSVG(text) {
@@ -350,14 +356,20 @@ async function firebase() {
 /* ---------- Navegação entre vistas ---------- */
 const views = ["inicio", "video", "quiz", "ranking", "podio"];
 function route() {
-  let h = location.hash.replace("#", "") || (SALA ? "quiz" : "inicio");
+  let h = vista || (SALA ? "quiz" : "inicio");
   if (!views.includes(h)) h = "inicio";
   document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === "v-" + h));
   if (h !== "video") { const v = $("#video"); if (v && !v.paused) v.pause(); }
   if (h === "quiz") quizEntrar();
   if (h === "ranking") rankingEntrar();
 }
-addEventListener("hashchange", route);
+function ir(v) { vista = v; route(); }
+// Ligações internas (href="#…") mudam de vista sem alterar o endereço
+document.addEventListener("click", (ev) => {
+  const a = ev.target.closest && ev.target.closest('a[href^="#"]');
+  if (!a || ev.defaultPrevented) return;
+  ev.preventDefault(); ir(a.getAttribute("href").slice(1));
+});
 
 /* ---------- Ecrã inteiro da página toda: pedido no primeiro toque e mantido entre vistas ---------- */
 const video = $("#video");
@@ -389,8 +401,7 @@ function sairEcraInteiro() {
 }
 $("#tile-video").addEventListener("click", (ev) => {
   ev.preventDefault();
-  if (location.hash !== "#video") history.pushState(null, "", "#video");
-  route();
+  ir("video");
   // Tudo dentro do mesmo toque, para o navegador autorizar o ecrã inteiro e o som
   if (podeFS) paginaEmEcraInteiro(); else ecraInteiro(video);   // iPhone: leitor de ecrã inteiro do Safari
   video.currentTime = video.ended ? 0 : video.currentTime;
@@ -399,18 +410,18 @@ $("#tile-video").addEventListener("click", (ev) => {
 });
 // Ao terminar o vídeo, sai do ecrã inteiro e volta ao início
 // Ao terminar, volta sozinho ao início (mantém o ecrã inteiro para o passo seguinte)
-video.addEventListener("ended", () => { setTimeout(() => { location.hash = "inicio"; }, 600); });
+video.addEventListener("ended", () => { setTimeout(() => { ir("inicio"); }, 600); });
 // A barra de cima do vídeo esconde-se ao fim de 2,5 s sem mexer no rato
 let idleT = 0;
 const acordar = () => { $("#v-video").classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => $("#v-video").classList.add("idle"), 2500); };
 ["mousemove", "touchstart", "keydown"].forEach(e => $("#v-video").addEventListener(e, acordar, { passive: true }));
 video.addEventListener("play", acordar);
 // Se a pessoa sair do ecrã inteiro (tecla Esc), o vídeo pausa e fica na página do vídeo
-const aoSairFS = () => { if (!emFS() && location.hash === "#video" && !video.ended) video.pause(); };
+const aoSairFS = () => { if (!emFS() && vista === "video" && !video.ended) video.pause(); };
 document.addEventListener("fullscreenchange", aoSairFS);
 document.addEventListener("webkitfullscreenchange", aoSairFS);
 video.addEventListener("webkitendfullscreen", () => { if (!video.ended) video.pause(); });
-$("#b-voltar").addEventListener("click", () => { R.auto = false; location.hash = "ranking"; });
+$("#b-voltar").addEventListener("click", () => { R.auto = false; ir("ranking"); });
 
 // «Fazer o quiz»: no telemóvel abre o quiz individual; no computador/projector abre o QR da sala em grande
 $("#tile-quiz").addEventListener("click", (ev) => {
@@ -419,7 +430,7 @@ $("#tile-quiz").addEventListener("click", (ev) => {
   paginaEmEcraInteiro();
   R.sala = novaSala(); try { localStorage.setItem("or26-sala", R.sala); } catch (e) {}
   R.auto = true;
-  if (location.hash === "#ranking") ligarSala(); else location.hash = "ranking";
+  if (vista === "ranking") ligarSala(); else ir("ranking");
 });
 // Qualquer toque nas vistas do apresentador mantém o ecrã inteiro
 ["v-inicio", "v-ranking", "v-podio"].forEach(id => $("#" + id).addEventListener("click", () => { if (!ecraPequeno()) paginaEmEcraInteiro(); }));
@@ -618,7 +629,7 @@ function desenhar() {
     rows.appendChild(m);
   }
 }
-addEventListener("resize", () => { if (location.hash === "#ranking") desenhar(); });
+addEventListener("resize", () => { if (vista === "ranking") desenhar(); });
 
 function iniciarConta() {
   R.conta = ESPERA_PODIO;
@@ -642,7 +653,7 @@ function mostrarPodio() {
     $("#w" + k).textContent = j ? j.nome : "—";
     $("#p" + k).textContent = j ? `${j.certas}/${N_PERGUNTAS} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
   });
-  location.hash = "podio";
+  ir("podio");
 }
 $("#b-podio").addEventListener("click", () => { pararConta(); mostrarPodio(); });
 $("#b-nova").addEventListener("click", () => {
