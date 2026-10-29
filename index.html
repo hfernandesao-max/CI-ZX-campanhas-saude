@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Campanhas de Saúde · ConsultIT e Zentrix</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root { --bg:#000; --surface:#1C1C1E; --fg:#F5F5F7; --muted:#A1A1A6; --pink:#FF4F96; --blue:#5A96FF; --violet:#B06BFF; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:"Inter",-apple-system,"Segoe UI",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.wrap { max-width:1000px; margin:0 auto; padding:48px max(16px, env(safe-area-inset-left,0px)) 64px; display:flex; flex-direction:column; gap:48px; }
+.selo { height:56px; width:auto; display:block; }
+.grad { background:linear-gradient(90deg,var(--pink),var(--violet) 55%,var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+h1 { margin:0; font-size:clamp(40px,8vw,88px); font-weight:800; letter-spacing:-0.035em; line-height:1.02; }
+.lead { margin:16px 0 0; font-size:clamp(18px,2.4vw,24px); color:var(--muted); max-width:40ch; line-height:1.45; }
+.card { background:var(--surface); border-radius:28px; padding:32px; display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:center; }
+.card img { height:120px; width:auto; }
+.card h2 { margin:0; font-size:clamp(28px,4vw,40px); font-weight:800; letter-spacing:-0.02em; }
+.card p { margin:8px 0 20px; color:var(--muted); font-size:18px; line-height:1.45; }
+.actions { display:flex; gap:12px; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; min-height:48px; padding:12px 26px; border-radius:999px; font-weight:600; font-size:17px; text-decoration:none; }
+.btn.primary { background:var(--fg); color:#000; }
+.btn.ghost { box-shadow:inset 0 0 0 2px var(--fg); color:var(--fg); }
+.btn:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
+footer { color:#8E8E93; font-size:14px; }
+@media (max-width:560px) { .card { grid-template-columns:1fr; } .card img { height:96px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img class="selo" src="assets/selo.png" alt="ConsultIT e Zentrix">
+  <header>
+    <h1 class="grad">Campanhas de Saúde</h1>
+    <p class="lead">Materiais de sensibilização para as colaboradoras e os colaboradores da ConsultIT e da Zentrix.</p>
+  </header>
+
+  <article class="card">
+    <img src="assets/laco.png" alt="" aria-hidden="true">
+    <div>
+      <h2>Outubro Rosa 2026</h2>
+      <p>Prevenção e detecção precoce do cancro da mama.</p>
+      <div class="actions">
+        <a class="btn primary" href="outubro-rosa-2026/video.mp4">Ver o vídeo</a>
+        <a class="btn ghost" href="outubro-rosa-2026/quiz.html">Abrir o quiz</a>
+      </div>
+    </div>
+  </article>
+
+  <footer>Conteúdo informativo. Não substitui o aconselhamento de um profissional de saúde.</footer>
+</div>
+</body>
+</html>
