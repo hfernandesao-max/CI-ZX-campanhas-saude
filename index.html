@@ -196,7 +196,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
         <p>Prevenção e detecção precoce do cancro da mama, para as colaboradoras da ConsultIT e da Zentrix.</p>
       </div>
       <nav class="tiles" aria-label="Conteúdos">
-        <a class="tile v" href="#video">
+        <a class="tile v" href="#video" id="tile-video">
           <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></span>
           <span class="tx"><span class="k">4 minutos</span><h2>Ver o vídeo</h2><p>O que é, os sinais a conhecer e como se proteger.</p>
             <span class="go">Reproduzir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
@@ -225,7 +225,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
       <a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a>
       <img class="selo" src="assets/selo.png" alt="ConsultIT e Zentrix">
     </div>
-    <div class="player"><video id="video" controls playsinline preload="none" poster="outubro-rosa-2026/poster.jpg" src="outubro-rosa-2026/video.mp4">O seu navegador não consegue reproduzir este vídeo.</video></div>
+    <div class="player"><video id="video" controls playsinline preload="auto" poster="outubro-rosa-2026/poster.jpg" src="outubro-rosa-2026/video.mp4">O seu navegador não consegue reproduzir este vídeo.</video></div>
   </div>
 </section>
 
@@ -337,6 +337,39 @@ function route() {
   if (h === "ranking") rankingEntrar();
 }
 addEventListener("hashchange", route);
+
+/* ---------- Vídeo: um toque em «Ver o vídeo» reproduz logo em ecrã inteiro ---------- */
+const video = $("#video");
+function ecraInteiro(el) {
+  try {
+    if (el.requestFullscreen) return el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+    if (video.webkitEnterFullscreen) return video.webkitEnterFullscreen();   // iPhone (Safari)
+  } catch (e) {}
+}
+function sairEcraInteiro() {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+  } catch (e) {}
+}
+$("#tile-video").addEventListener("click", (ev) => {
+  ev.preventDefault();
+  if (location.hash !== "#video") history.pushState(null, "", "#video");
+  route();
+  // Tudo dentro do mesmo toque, para o navegador autorizar o ecrã inteiro e o som
+  ecraInteiro(video);
+  video.currentTime = video.ended ? 0 : video.currentTime;
+  const p = video.play();
+  if (p && p.catch) p.catch(() => { video.muted = true; video.play().catch(() => {}); });
+});
+// Ao terminar o vídeo, sai do ecrã inteiro e volta ao início
+video.addEventListener("ended", () => { sairEcraInteiro(); setTimeout(() => { location.hash = "inicio"; }, 400); });
+// Se a pessoa sair do ecrã inteiro (tecla Esc), o vídeo pausa e fica na página do vídeo
+const aoSairFS = () => { if (!document.fullscreenElement && !document.webkitFullscreenElement && !video.ended) video.pause(); };
+document.addEventListener("fullscreenchange", aoSairFS);
+document.addEventListener("webkitfullscreenchange", aoSairFS);
+video.addEventListener("webkitendfullscreen", () => { if (!video.ended) video.pause(); });
 $("#b-voltar").addEventListener("click", () => { location.hash = "ranking"; });
 
 /* =====================================================
