@@ -80,14 +80,14 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
 .go svg { width: 18px; height: 18px; transition: transform .35s ease; }
 .tile:hover .go svg { transform: translateX(4px); }
 
-.bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.bottom { display: flex; align-items: center; justify-content: center; gap: 24px; }
 .take { display: flex; align-items: center; gap: 20px; }
 .qr-card { background: #fff; padding: 8px; border-radius: 14px; flex-shrink: 0; }
 .qr-card svg { display: block; width: 100%; height: 100%; }
 .take .qr-card { width: clamp(96px, 14vh, 140px); height: clamp(96px, 14vh, 140px); }
 .take h3 { margin: 0 0 4px; font-size: clamp(16px, 2.2vh, 22px); font-weight: 700; }
 .take p { margin: 0; color: var(--muted); font-size: clamp(13px, 1.7vh, 16px); line-height: 1.45; max-width: 46ch; }
-.fine { color: var(--faint); font-size: 12px; line-height: 1.5; text-align: right; max-width: 34ch; }
+.fine { margin: 0; color: var(--faint); font-size: 12px; line-height: 1.5; text-align: center; }
 .fine a { color: var(--faint); }
 
 /* ---------- Vídeo ---------- */
@@ -229,11 +229,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
         </a>
       </nav>
       <div class="bottom">
-        <div class="take">
-          <div class="qr-card" id="qr-home"></div>
-          <div><h3>Leve consigo.</h3><p>Aponte a câmara do telemóvel ao código para abrir esta página e rever o vídeo e o quiz quando quiser.</p></div>
-        </div>
-        <p class="fine">Fontes: OMS, IARC e American Cancer Society. Conteúdo informativo; não substitui o aconselhamento de um profissional de saúde.<br><a href="#ranking">Modo apresentador</a></p>
+        <p class="fine">Fontes: OMS, IARC e American Cancer Society. Conteúdo informativo; não substitui o aconselhamento de um profissional de saúde.</p>
       </div>
     </div>
   </div>
@@ -333,7 +329,6 @@ function qrSVG(text) {
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
   return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" role="img" aria-label="Código QR"><path fill="#000" d="${d}"/></svg>`;
 }
-$("#qr-home").innerHTML = qrSVG(BASE);
 
 /* ---------- Firebase (carregado só quando é preciso) ---------- */
 let fb = null;
