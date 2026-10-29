@@ -290,7 +290,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
 
 <script src="assets/qrcode.js"></script>
 <script type="module">
-import { QUESTOES, pontosPara, PONTOS_MAX } from "./outubro-rosa-2026/questoes.js";
+import { sortear, N_PERGUNTAS, pontosPara } from "./outubro-rosa-2026/questoes.js";
 import { firebaseConfig, configurado } from "./outubro-rosa-2026/firebase-config.js";
 
 const BASE = location.origin + location.pathname.replace(/index\.html$/, "");
@@ -409,11 +409,13 @@ async function comecar(ev) {
   if (!nome) { $("#msg").textContent = "Escreva o seu nome para começar."; $("#nome").focus(); return; }
   try { localStorage.setItem("or26-nome", nome); } catch (e) {}
   Q.nome = nome; Q.iniciado = true;
+  Q.lista = sortear(Math.random());   // modo individual: sorteio novo a cada jogo
   if (SALA) {
     $("#b-comecar").disabled = true; $("#msg").textContent = "A ligar…";
     try {
       const { uid, db, fs } = await firebase();
       Q.ref = fs.doc(db, "salas", SALA, "jogadores", uid);
+      Q.lista = sortear(uid + ":" + SALA);   // perguntas próprias deste telemóvel (iguais se recarregar)
       const snap = await fs.getDoc(Q.ref);
       if (snap.exists()) {               // retomar onde ficou (ex.: recarregou a página)
         const d = snap.data();
@@ -430,13 +432,13 @@ async function comecar(ev) {
       return;
     }
   }
-  Q.i >= QUESTOES.length ? fim() : pergunta();
+  Q.i >= N_PERGUNTAS ? fim() : pergunta();
 }
 
 let timerRAF = 0;
 function pergunta() {
-  const q = QUESTOES[Q.i];
-  const head = `<div class="qhead"><span>${Q.i + 1} / ${QUESTOES.length}</span><span>${Q.pontos.toLocaleString("pt-PT")} pontos</span></div>`;
+  const q = Q.lista[Q.i];
+  const head = `<div class="qhead"><span>${Q.i + 1} / ${N_PERGUNTAS}</span><span>${Q.pontos.toLocaleString("pt-PT")} pontos</span></div>`;
   const timer = SALA ? `<div class="timer" aria-hidden="true"><i id="tbar"></i></div>` : "";
   if (q.t === "tf") {
     show(`${head}${timer}<span class="eyebrow">Mito ou Verdade?</span><h1 class="big q">«${esc(q.s)}»</h1>
@@ -459,11 +461,11 @@ function pergunta() {
 async function responder(v) {
   cancelAnimationFrame(timerRAF);
   stage.querySelectorAll("button").forEach(b => b.disabled = true);
-  const q = QUESTOES[Q.i];
+  const q = Q.lista[Q.i];
   const certa = v === q.a;
   const pts = SALA ? pontosPara(certa, (performance.now() - Q.t0) / 1000) : 0;
   Q.pontos += pts; if (certa) Q.certas++; Q.i++;
-  const ultima = Q.i >= QUESTOES.length;
+  const ultima = Q.i >= N_PERGUNTAS;
   if (Q.ref) {
     const { fs } = fb;
     const dados = { pontos: Q.pontos, certas: Q.certas, respondidas: Q.i, terminado: ultima, actualizado: fs.serverTimestamp() };
@@ -484,7 +486,7 @@ function fim() {
   show(`
     <img class="ribbon" src="assets/laco.png" alt="" aria-hidden="true">
     <span class="eyebrow">${esc(Q.nome)}</span>
-    <h1 class="big t1 grad">${Q.certas} / ${QUESTOES.length}</h1>
+    <h1 class="big t1 grad">${Q.certas} / ${N_PERGUNTAS}</h1>
     ${SALA ? `<p class="lead"><b style="color:var(--fg)">${Q.pontos.toLocaleString("pt-PT")} pontos.</b> Olhe para o ecrã para ver o ranking.</p>`
            : `<p class="lead">Agora já sabe mais. Partilhe estas respostas com quem lhe é próxima.</p>
               <button class="btn ghost" type="button" id="b-again">Jogar de novo</button>`}
@@ -549,7 +551,7 @@ function desenhar() {
     const r = document.createElement("div"); r.className = "row" + (j.terminado ? " done" : "");
     const p = document.createElement("span"); p.className = "p"; p.textContent = k + 1;
     const n = document.createElement("span"); n.className = "n"; n.textContent = j.nome || "—";
-    const b = document.createElement("span"); b.className = "bar"; const i = document.createElement("i"); i.style.width = `${(j.respondidas || 0) / QUESTOES.length * 100}%`; b.appendChild(i);
+    const b = document.createElement("span"); b.className = "bar"; const i = document.createElement("i"); i.style.width = `${(j.respondidas || 0) / N_PERGUNTAS * 100}%`; b.appendChild(i);
     const s = document.createElement("span"); s.className = "s"; s.textContent = (j.pontos || 0).toLocaleString("pt-PT");
     r.append(p, n, b, s); rows.appendChild(r);
   });
@@ -565,7 +567,7 @@ $("#b-podio").addEventListener("click", () => {
   [1, 2, 3].forEach(k => {
     const j = top[k - 1];
     $("#w" + k).textContent = j ? j.nome : "—";
-    $("#p" + k).textContent = j ? `${j.certas}/${QUESTOES.length} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
+    $("#p" + k).textContent = j ? `${j.certas}/${N_PERGUNTAS} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
   });
   location.hash = "podio";
 });
