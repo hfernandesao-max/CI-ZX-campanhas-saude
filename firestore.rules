@@ -1,0 +1,35 @@
+rules_version = '2';
+// Regras do Firestore para o quiz «Mito ou Verdade?» (campanhas de saúde ConsultIT e Zentrix).
+// Cada telemóvel entra de forma anónima e só pode escrever a sua própria linha do ranking.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /salas/{sala}/jogadores/{uid} {
+      allow read: if request.auth != null;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && sala.size() <= 12
+        && request.resource.data.keys().hasOnly(['nome', 'pontos', 'certas', 'respondidas', 'terminado', 'inicio', 'actualizado', 'fim'])
+        && request.resource.data.nome is string
+        && request.resource.data.nome.size() >= 1
+        && request.resource.data.nome.size() <= 30
+        && request.resource.data.pontos is int
+        && request.resource.data.pontos >= 0
+        && request.resource.data.pontos <= 12000
+        && request.resource.data.certas is int
+        && request.resource.data.certas >= 0
+        && request.resource.data.certas <= 12
+        && request.resource.data.respondidas is int
+        && request.resource.data.respondidas >= 0
+        && request.resource.data.respondidas <= 12
+        && request.resource.data.terminado is bool;
+
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
