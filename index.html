@@ -185,6 +185,26 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
 .auto button { min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--surface); font-size: 14px; font-weight: 600; }
 .ctrl .btn { min-height: 44px; padding: 10px 22px; font-size: 15px; }
 
+.privacy { font-size: 13px; line-height: 1.45; color: var(--faint); }
+.rate { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.stars { display: flex; gap: 8px; }
+.stars button { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); color: var(--fg); font-size: 18px; font-weight: 700; box-shadow: inset 0 0 0 1px var(--line); }
+.stars button:hover { background: var(--pink); color: #000; }
+.rate-l { display: flex; justify-content: space-between; width: 272px; font-size: 12px; color: var(--faint); }
+/* Revisão: as perguntas que a sala mais falhou */
+.rev { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: clamp(14px, 2.4vh, 28px); padding-top: clamp(8px, 2vh, 24px); }
+.rev-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.rev-h h1 { margin: 0; font-size: clamp(30px, 6vh, 68px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+.rev-list { flex: 1; min-height: 0; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.6vh, 16px); }
+.rev-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(14px, 2vw, 28px); padding: clamp(14px, 2.4vh, 28px) clamp(18px, 2.4vw, 32px); border-radius: 24px; background: var(--surface); min-height: 0; overflow: hidden; }
+.rev-n { font-size: clamp(28px, 5vh, 56px); font-weight: 800; color: var(--pink); font-variant-numeric: tabular-nums; }
+.rev-q { margin: 0 0 6px; font-size: clamp(17px, 2.7vh, 28px); font-weight: 700; line-height: 1.2; }
+.rev-a { margin: 0; font-size: clamp(14px, 2vh, 20px); color: var(--muted); line-height: 1.4; }
+.rev-a b { color: var(--fg); }
+.rev-pct { text-align: right; font-size: clamp(13px, 1.8vh, 17px); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rev-pct b { display: block; font-size: clamp(22px, 3.6vh, 40px); color: var(--fg); }
+.sat { color: var(--muted); font-size: clamp(13px, 1.8vh, 16px); }
+
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
@@ -278,9 +298,26 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
         <div class="ctrl">
           <button class="btn ghost" type="button" id="b-nova">Nova sessão</button>
           <button class="btn ghost" type="button" id="b-fs">Ecrã inteiro</button>
-          <button class="btn" type="button" id="b-podio">Mostrar vencedoras</button>
+          <button class="btn" type="button" id="b-podio">Ver resultados</button>
         </div>
       </section>
+    </div>
+  </div>
+</section>
+
+<!-- ========== REVISÃO ========== -->
+<section class="view" id="v-revisao" aria-label="Perguntas mais falhadas">
+  <div class="inner">
+    <div class="top">
+      <a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a>
+      <img class="selo" src="assets/selo.png" alt="ConsultIT e Zentrix">
+    </div>
+    <div class="rev">
+      <div class="rev-h">
+        <div><span class="eyebrow">Vamos conversar</span><h1 class="grad" style="margin-top:8px">As perguntas que mais falharam.</h1></div>
+        <button class="btn" type="button" id="b-rev-podio">Mostrar vencedoras</button>
+      </div>
+      <div class="rev-list" id="rev-list"></div>
     </div>
   </div>
 </section>
@@ -301,13 +338,14 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
       </div>
       <p class="lanche">Segue-se agora um pequeno lanche convívio.</p>
       <p class="small">Obrigada a todas pela participação. Conheça-se. Previna-se. Partilhe.</p>
+      <p class="sat" id="sat"></p>
     </div>
   </div>
 </section>
 
 <script src="assets/qrcode.js"></script>
 <script type="module">
-import { sortear, N_PERGUNTAS, pontosPara } from "./outubro-rosa-2026/questoes.js";
+import { sortear, N_PERGUNTAS, pontosPara, BANCO } from "./outubro-rosa-2026/questoes.js";
 import { firebaseConfig, configurado } from "./outubro-rosa-2026/firebase-config.js";
 
 const BASE = location.origin + location.pathname.replace(/index\.html$/, "");
@@ -349,7 +387,7 @@ async function firebase() {
 }
 
 /* ---------- Navegação entre vistas ---------- */
-const views = ["inicio", "video", "quiz", "ranking", "podio"];
+const views = ["inicio", "video", "quiz", "ranking", "revisao", "podio"];
 function route() {
   let h = vista || (SALA ? "quiz" : "inicio");
   if (!views.includes(h)) h = "inicio";
@@ -428,7 +466,7 @@ $("#tile-quiz").addEventListener("click", (ev) => {
   if (vista === "ranking") ligarSala(); else ir("ranking");
 });
 // Qualquer toque nas vistas do apresentador mantém o ecrã inteiro
-["v-inicio", "v-ranking", "v-podio"].forEach(id => $("#" + id).addEventListener("click", () => { if (!ecraPequeno()) paginaEmEcraInteiro(); }));
+["v-inicio", "v-ranking", "v-revisao", "v-podio"].forEach(id => $("#" + id).addEventListener("click", () => { if (!ecraPequeno()) paginaEmEcraInteiro(); }));
 
 /* =====================================================
    QUIZ NO TELEMÓVEL
@@ -453,8 +491,9 @@ function quizEntrar() {
     <h1 class="big t1 grad">Mito ou Verdade?</h1>
     <p class="lead">${SALA ? "12 perguntas. Quanto mais depressa acertar, mais pontos ganha." : "12 perguntas sobre o cancro da mama. Descubra o que diz a ciência."}</p>
     <form class="field" id="f-nome" novalidate>
-      <label for="nome">O seu nome</label>
-      <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="Ex.: Maria Silva" value="${esc(nomeGuardado)}">
+      <label for="nome">${SALA ? "O seu primeiro nome" : "O seu nome"}</label>
+      <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="Ex.: Maria" value="${esc(nomeGuardado)}">
+      ${SALA ? `<span class="privacy">O nome aparece só no ranking desta sessão e é apagado automaticamente ao fim de 30 dias. Pode usar só o primeiro nome ou uma alcunha.</span>` : ""}
     </form>
     <button class="btn" type="submit" form="f-nome" id="b-comecar">Começar</button>
     <p class="small" id="msg"></p>`, "#nome");
@@ -481,6 +520,8 @@ async function comecar(ev) {
         if (d.nome !== nome) await fs.updateDoc(Q.ref, { nome, actualizado: fs.serverTimestamp() });
       } else {
         await fs.setDoc(Q.ref, { nome, pontos: 0, certas: 0, respondidas: 0, terminado: false, inicio: fs.serverTimestamp(), actualizado: fs.serverTimestamp() });
+        // data de expiração (apagamento automático ao fim de 30 dias — política TTL do Firestore)
+        fs.updateDoc(Q.ref, { expira: fs.Timestamp.fromMillis(Date.now() + 30 * 864e5) }).catch(() => {});
       }
     } catch (e) {
       Q.iniciado = false; $("#b-comecar").disabled = false;
@@ -529,6 +570,7 @@ async function responder(v) {
     const dados = { pontos: Q.pontos, certas: Q.certas, respondidas: Q.i, terminado: ultima, actualizado: fs.serverTimestamp() };
     if (ultima) dados.fim = fs.serverTimestamp();
     fs.updateDoc(Q.ref, dados).catch(() => {});
+    if (!certa) fs.updateDoc(Q.ref, { falhas: fs.arrayUnion(q.id) }).catch(() => {});   // para a revisão das mais falhadas
   }
   const verdict = q.t === "tf" ? (q.a ? "Verdade." : "Mito.") : `${L[q.a]}. ${esc(q.o[q.a])}`;
   show(`
@@ -545,10 +587,18 @@ function fim() {
     <img class="ribbon" src="assets/laco.png" alt="" aria-hidden="true">
     <span class="eyebrow">${esc(Q.nome)}</span>
     <h1 class="big t1 grad">${Q.certas} / ${N_PERGUNTAS}</h1>
-    ${SALA ? `<p class="lead"><b style="color:var(--fg)">${Q.pontos.toLocaleString("pt-PT")} pontos.</b> Olhe para o ecrã para ver o ranking.</p>`
+    ${SALA ? `<p class="lead"><b style="color:var(--fg)">${Q.pontos.toLocaleString("pt-PT")} pontos.</b> Olhe para o ecrã para ver o ranking.</p>
+              <div class="rate" id="rate"><p class="small" style="color:var(--muted)">Esta sessão foi útil para si?</p>
+                <div class="stars">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" aria-label="${n} de 5">${n}</button>`).join("")}</div>
+                <div class="rate-l"><span>Nada útil</span><span>Muito útil</span></div></div>`
            : `<p class="lead">Agora já sabe mais. Partilhe estas respostas com quem lhe é próxima.</p>
               <button class="btn ghost" type="button" id="b-again">Jogar de novo</button>`}
     <p class="small">Conheça-se. Previna-se. Partilhe.</p>`);
+  stage.querySelectorAll(".stars button").forEach(b => b.addEventListener("click", () => {
+    const n = +b.dataset.n;
+    if (Q.ref && fb) fb.fs.updateDoc(Q.ref, { satisfacao: n }).catch(() => {});
+    $("#rate").innerHTML = `<p class="small" style="color:var(--fg)">Obrigada pela sua opinião.</p>`;
+  }));
   const again = $("#b-again");
   if (again) again.addEventListener("click", () => { Q = { i: 0, pontos: 0, certas: 0, nome: Q.nome, ref: null, t0: 0, iniciado: false }; quizEntrar(); });
 }
@@ -609,7 +659,8 @@ function desenhar() {
   const rh = Math.max(40, Math.min(64, Math.floor(rows.clientHeight / 9) - 8));
   rows.style.setProperty("--rh", rh + "px");
   const cabem = Math.max(1, Math.floor((rows.clientHeight + 8) / (rh + 8)));
-  const mostrar = list.length > cabem ? list.slice(0, cabem - 1) : list;
+  const limite = Math.min(cabem, 10);                    // só os 10 primeiros, para ninguém ficar exposta
+  const mostrar = list.length > limite ? list.slice(0, list.length > cabem ? limite - 1 : limite) : list;
   rows.innerHTML = "";
   mostrar.forEach((j, k) => {
     const r = document.createElement("div"); r.className = "row" + (j.terminado ? " done" : "");
@@ -631,16 +682,44 @@ function iniciarConta() {
   const tick = () => {
     const m = $("#st-msg"); m.innerHTML = "";
     const span = document.createElement("span"); span.className = "auto";
-    span.textContent = `Todas terminaram! Vencedoras em ${R.conta} s`;
+    span.textContent = `Todas terminaram! Resultados em ${R.conta} s`;
     const b = document.createElement("button"); b.type = "button"; b.textContent = "Esperar";
     b.addEventListener("click", () => { R.auto = false; pararConta(); $("#st-msg").textContent = "Todas terminaram!"; });
     span.appendChild(b); m.appendChild(span);
-    if (R.conta-- <= 0) { pararConta(); mostrarPodio(); return; }
+    if (R.conta-- <= 0) { pararConta(); mostrarRevisao(); return; }
     R.contaT = setTimeout(tick, 1000);
   };
   tick();
 }
 function pararConta() { clearTimeout(R.contaT); R.contaT = 0; }
+function maisFalhadas() {
+  const cont = new Map();
+  R.jogadores.forEach(j => (Array.isArray(j.falhas) ? j.falhas : []).forEach(id => cont.set(id, (cont.get(id) || 0) + 1)));
+  return [...cont.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
+    .map(([id, n]) => ({ q: BANCO[id], n })).filter(x => x.q);
+}
+function mostrarRevisao() {
+  const top = maisFalhadas();
+  if (!top.length) { mostrarPodio(); return; }          // sem dados de falhas: segue para o pódio
+  const box = $("#rev-list"); box.innerHTML = "";
+  box.style.gridTemplateRows = `repeat(${top.length}, minmax(0, 1fr))`;
+  const total = R.jogadores.length;
+  top.forEach((x, k) => {
+    const q = x.q, certa = q.t === "tf" ? (q.a ? "Verdade" : "Mito") : q.o[q.a];
+    const c = document.createElement("article"); c.className = "rev-card";
+    const n = document.createElement("span"); n.className = "rev-n"; n.textContent = k + 1;
+    const t = document.createElement("div");
+    const h = document.createElement("p"); h.className = "rev-q"; h.textContent = q.t === "tf" ? `«${q.s}»` : q.s;
+    const a = document.createElement("p"); a.className = "rev-a";
+    const b = document.createElement("b"); b.textContent = certa + ". "; a.append(b, document.createTextNode(q.e));
+    t.append(h, a);
+    const pc = document.createElement("div"); pc.className = "rev-pct";
+    const pb = document.createElement("b"); pb.textContent = x.n; pc.append(pb, document.createTextNode(x.n === 1 ? "pessoa errou" : "pessoas erraram"));
+    c.append(n, t, pc); box.appendChild(c);
+  });
+  ir("revisao");
+}
+$("#b-rev-podio").addEventListener("click", () => mostrarPodio());
 function mostrarPodio() {
   const top = ordenar(R.jogadores);
   [1, 2, 3].forEach(k => {
@@ -648,9 +727,13 @@ function mostrarPodio() {
     $("#w" + k).textContent = j ? j.nome : "—";
     $("#p" + k).textContent = j ? `${j.certas}/${N_PERGUNTAS} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
   });
+  const notas = R.jogadores.map(j => j.satisfacao).filter(n => Number.isInteger(n) && n >= 1 && n <= 5);
+  $("#sat").textContent = notas.length
+    ? `Utilidade da sessão: ${(notas.reduce((a, b) => a + b, 0) / notas.length).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} / 5 (${notas.length} ${notas.length === 1 ? "resposta" : "respostas"})`
+    : "";
   ir("podio");
 }
-$("#b-podio").addEventListener("click", () => { pararConta(); mostrarPodio(); });
+$("#b-podio").addEventListener("click", () => { pararConta(); mostrarRevisao(); });
 $("#b-nova").addEventListener("click", () => {
   const b = $("#b-nova");
   if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmar nova sessão"; setTimeout(() => { b.dataset.confirm = ""; b.textContent = "Nova sessão"; }, 4000); return; }

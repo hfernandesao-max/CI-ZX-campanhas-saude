@@ -10,7 +10,7 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.auth.uid == uid
         && sala.size() <= 12
-        && request.resource.data.keys().hasOnly(['nome', 'pontos', 'certas', 'respondidas', 'terminado', 'inicio', 'actualizado', 'fim'])
+        && request.resource.data.keys().hasOnly(['nome', 'pontos', 'certas', 'respondidas', 'terminado', 'inicio', 'actualizado', 'fim', 'falhas', 'satisfacao', 'expira'])
         && request.resource.data.nome is string
         && request.resource.data.nome.size() >= 1
         && request.resource.data.nome.size() <= 30
@@ -23,7 +23,10 @@ service cloud.firestore {
         && request.resource.data.respondidas is int
         && request.resource.data.respondidas >= 0
         && request.resource.data.respondidas <= 12
-        && request.resource.data.terminado is bool;
+        && request.resource.data.terminado is bool
+        && (!('falhas' in request.resource.data) || (request.resource.data.falhas is list && request.resource.data.falhas.size() <= 12))
+        && (!('satisfacao' in request.resource.data) || (request.resource.data.satisfacao is int && request.resource.data.satisfacao >= 1 && request.resource.data.satisfacao <= 5))
+        && (!('expira' in request.resource.data) || request.resource.data.expira is timestamp);
 
       allow delete: if false;
     }

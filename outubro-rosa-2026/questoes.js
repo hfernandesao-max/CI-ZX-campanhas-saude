@@ -102,6 +102,8 @@ export const BANCO = [
     e: "Com cerca de 2,4 milhões de casos por ano, são mais de 4 diagnósticos por minuto." }
 ];
 
+BANCO.forEach((q, i) => { q.id = i; });   // identificador estável de cada pergunta (para a revisão)
+
 // ---------- Sorteio ----------
 // Gerador pseudo-aleatório com semente: o mesmo telemóvel (mesma semente) recebe sempre as mesmas perguntas,
 // por isso, se recarregar a página, continua exactamente onde estava.

@@ -40,11 +40,17 @@ Resposta errada: 0. Desempate: mais respostas certas e, depois, quem terminou pr
 
 Os valores de `firebaseConfig` identificam o projecto e podem estar num repositório público; quem protege os dados são as regras do Firestore (cada telemóvel só escreve a sua própria linha, com limites de pontos).
 
+## Protecção de dados e segurança
+
+- **Apagamento automático (30 dias):** em Firestore → *Time-to-live (TTL)* → *Criar política*: grupo de colecções `jogadores`, campo `expira`.
+- **Chave restrita ao site:** em Google Cloud Console → *APIs e serviços* → *Credenciais* → chave «Browser key» → *Restrições de aplicações: Referenciadores HTTP* → `hfernandesao-max.github.io/*` (e o domínio novo, quando existir).
+- O ranking mostra só os 10 primeiros; as restantes aparecem como «+ N participantes».
+
 ## No dia
 
 1. No portátil ligado ao projector, abrir `/#ranking` (ligação «Modo apresentador» no rodapé do portal) e carregar em **Ecrã inteiro**.
 2. As colaboradoras lêem o QR, escrevem o nome e respondem às 12 perguntas.
-3. Quando todas terminarem («Todas terminaram!»), carregar em **Mostrar vencedoras**.
+3. Quando todas terminam, o ecrã mostra sozinho as 3 perguntas mais falhadas (para comentar) e, com um toque em **Mostrar vencedoras**, o pódio com a utilidade média da sessão.
 4. Para outra ronda, **Nova sessão** (gera um novo código e um novo QR).
 
 ## Nova campanha
