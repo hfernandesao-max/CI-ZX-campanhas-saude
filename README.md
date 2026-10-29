@@ -48,10 +48,10 @@ Os valores de `firebaseConfig` identificam o projecto e podem estar num reposit�
 
 ## No dia
 
-1. No portátil ligado ao projector, abrir `/#ranking` (ligação «Modo apresentador» no rodapé do portal) e carregar em **Ecrã inteiro**.
-2. As colaboradoras lêem o QR, escrevem o nome e respondem às 12 perguntas.
+1. No portátil ligado ao projector, abrir o portal e tocar em **Fazer o quiz**: a página passa a ecrã inteiro e mostra o QR da sala em grande.
+2. As colaboradoras lêem o QR, escrevem o nome e respondem às 12 perguntas; o ecrã muda sozinho para o ranking ao vivo.
 3. Quando todas terminam, o ecrã mostra sozinho as 3 perguntas mais falhadas (para comentar) e, com um toque em **Mostrar vencedoras**, o pódio com a utilidade média da sessão.
-4. Para outra ronda, **Nova sessão** (gera um novo código e um novo QR).
+4. Para outra ronda, voltar ao **Início** e tocar outra vez em **Fazer o quiz** (nova sala e novo QR).
 
 ## Nova campanha
 
