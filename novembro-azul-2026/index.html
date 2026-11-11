@@ -654,6 +654,7 @@ async function ligarSala() {
     R.unsub = fs.onSnapshot(fs.collection(db, "salas", R.sala, "jogadores"), (snap) => {
       R.jogadores = snap.docs.map(d => d.data());
       desenhar();
+      resumoInquerito();
     }, () => { $("#st-msg").textContent = "Ligação interrompida. A tentar de novo…"; });
   } catch (e) {
     $("#rows").innerHTML = `<div class="empty">${e.message === "config"
@@ -749,6 +750,11 @@ function mostrarPodio() {
     $("#w" + k).textContent = j ? j.nome : "—";
     $("#p" + k).textContent = j ? `${j.certas}/${N_PERGUNTAS} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
   });
+  resumoInquerito();
+  ir("podio");
+}
+// Resumo do inquérito final; actualiza-se sozinho enquanto o pódio está no ecrã (as respostas chegam depois do quiz)
+function resumoInquerito() {
   const nota = k => R.jogadores.map(j => j[k]).filter(n => Number.isInteger(n) && n >= 1 && n <= 5);
   const media = a => (a.reduce((x, y) => x + y, 0) / a.length).toLocaleString("pt-PT", { maximumFractionDigits: 1 });
   const partes = [];
@@ -760,7 +766,6 @@ function mostrarPodio() {
   if (notas.length) partes.push(`Utilidade: ${media(notas)} / 5`);
   const resp = Math.max(pares.length, int.length, notas.length);
   $("#sat").textContent = partes.length ? `${partes.join(" · ")} (${resp} ${resp === 1 ? "resposta" : "respostas"})` : "";
-  ir("podio");
 }
 $("#b-podio").addEventListener("click", () => { pararConta(); mostrarRevisao(); });
 $("#b-nova").addEventListener("click", () => {
