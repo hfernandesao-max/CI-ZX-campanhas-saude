@@ -82,6 +82,13 @@ No dia (13 de Novembro), **modo automático**, sem intervenção do apresentador
 
 Sem `?auto`, o portal funciona como o do Outubro Rosa (toque em **Fazer o quiz**).
 
+Outras funcionalidades:
+
+- **Ranking por empresa**: cada participante escolhe consult.IT ou Zentrix; o ranking e o pódio mostram a média de pontos de cada empresa.
+- **No fim do quiz**: botão «Pôr lembrete no calendário» (ficheiro .ics para daqui a 7 dias, às 09h00, «Marcar o meu check-up») e «Partilhar com a família (WhatsApp)».
+- **Painel de resultados para a Administração**: <https://hfernandesao-max.github.io/CI-ZX-campanhas-saude/novembro-azul-2026/resultados.html> — participação, conhecimento antes e depois, intenção de check-up, utilidade, por empresa, perguntas mais falhadas e sessões, lidos do Firestore, com exportação CSV. Os dados são apagados ao fim de 30 dias: descarregar o CSV antes.
+- Estas funcionalidades precisam das regras do Firestore deste repositório (campos `empresa` e `campanha` e leitura de grupo para o painel).
+
 ## Nova campanha
 
 Acrescentar uma pasta (por exemplo `dezembro-2026/`) com a sua página, as perguntas e os materiais, como em `novembro-azul-2026/`.

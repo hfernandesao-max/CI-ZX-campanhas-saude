@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Resultados · Novembro Azul 2026</title>
+<link rel="icon" href="laco-azul.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Painel de resultados da campanha: resumo primeiro (indicadores), depois o detalhe por empresa, sessões e perguntas */
+:root {
+  --bg: #050B1A; --surface: #0F1A33; --surface-2: #16244A; --line: rgba(169,204,255,.14);
+  --fg: #F5F8FD; --muted: #A9BAD6; --faint: #7F92B3;
+  --a1: #7DB4FF; --a2: #4C97FF; --a3: #2F80ED; --ok: #A9CCFF;
+  --sans: 'Inter', "Segoe UI", Arial, sans-serif;
+}
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px }
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--a1) }
+h1 { margin: 4px 0 0; font-size: clamp(28px, 4.4vw, 44px); line-height: 1.1; letter-spacing: -.03em; font-weight: 800; text-wrap: balance }
+.sub { margin: 6px 0 0; color: var(--muted) }
+.selo { background: #fff; border-radius: 999px; padding: 6px 14px; display: flex } .selo img { height: 40px; display: block }
+.bar-ctl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
+.btn { font: inherit; font-weight: 700; border: 0; border-radius: 999px; padding: 10px 18px; min-height: 44px; background: var(--fg); color: #050B1A; cursor: pointer }
+.btn.ghost { background: var(--surface); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line) }
+.btn:focus-visible { outline: 3px solid var(--a2); outline-offset: 2px }
+.estado { color: var(--faint); font-size: 13px }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px }
+.kpi { background: var(--surface); border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.kpi .k { font-size: 13px; color: var(--muted); font-weight: 600 }
+.kpi .v { font-size: clamp(28px, 3.6vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; font-variant-numeric: tabular-nums }
+.kpi .d { font-size: 13px; color: var(--faint) }
+.v .up { color: var(--ok) }
+section.card { background: var(--surface); border-radius: 20px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0 }
+section.card h2 { margin: 0; font-size: 18px; font-weight: 700 }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px }
+.tbl { overflow-x: auto } table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700 }
+td.n, th.n { text-align: right }
+.hbar { display: grid; grid-template-columns: 140px 1fr 56px; gap: 10px; align-items: center; font-size: 14px }
+.hbar .t { height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden }
+.hbar .t i { display: block; height: 100%; background: var(--a2); border-radius: 6px }
+.hbar .p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted) }
+.q { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--line) }
+.q:last-child { border-bottom: 0 }
+.q .s { font-weight: 600 } .q .e { grid-column: 1; color: var(--muted); font-size: 13px; text-align: justify }
+.q .c { grid-row: 1 / span 2; grid-column: 2; text-align: right; font-weight: 800; font-size: 20px; color: var(--a1) }
+.q .c small { display: block; font-size: 12px; font-weight: 600; color: var(--faint) }
+.vazio { color: var(--muted); padding: 28px 0; text-align: center }
+.nota { color: var(--faint); font-size: 12.5px; text-align: justify }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <span class="eyebrow">Novembro Azul 2026 · Painel de resultados</span>
+      <h1>Resultados da campanha</h1>
+      <p class="sub">Dados agregados de todas as sessões do quiz, lidos directamente da base de dados. Sem nomes.</p>
+    </div>
+    <div class="selo"><img src="../assets/selo.png" alt="ConsultIT e Zentrix"></div>
+  </header>
+
+  <div class="bar-ctl">
+    <button class="btn" type="button" id="b-csv">Descarregar CSV</button>
+    <button class="btn ghost" type="button" id="b-act">Actualizar</button>
+    <span class="estado" id="estado">A carregar…</span>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <section class="card"><h2>Por empresa</h2><div class="tbl" id="t-emp"></div></section>
+    <section class="card"><h2>Vai marcar o check-up nos próximos 3 meses?</h2><div id="g-int"></div></section>
+  </div>
+
+  <section class="card"><h2>Perguntas mais falhadas</h2><div id="l-falhas"></div></section>
+  <section class="card"><h2>Sessões</h2><div class="tbl" id="t-ses"></div></section>
+
+  <p class="nota">Conhecimento: auto-avaliação de 1 a 5, antes e depois da sessão (pré-teste retrospectivo). Intenção: respostas «Sim» ou «Já fiz este ano». Por protecção de dados (Lei n.º 22/11), cada resposta é apagada automaticamente 30 dias depois; descarregue o CSV antes disso para guardar o histórico da campanha.</p>
+</div>
+
+<script type="module">
+import { BANCO } from "./questoes.js";
+import { firebaseConfig, configurado } from "./firebase-config.js";
+
+const $ = s => document.querySelector(s);
+const fmt = (n, d = 0) => Number(n).toLocaleString("pt-PT", { minimumFractionDigits: d, maximumFractionDigits: d });
+const media = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
+const EMP = { consultit: "consult.IT", zentrix: "Zentrix", "": "Sem empresa" };
+let dados = [], resumo = [];
+
+async function carregar() {
+  $("#estado").textContent = "A carregar…";
+  try {
+    if (!configurado) throw new Error("config");
+    const V = "10.12.2";
+    const [{ initializeApp }, auth, fs] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+    ]);
+    const app = initializeApp(firebaseConfig, "painel");
+    await auth.signInAnonymously(auth.getAuth(app));
+    const snap = await fs.getDocs(fs.collectionGroup(fs.getFirestore(app), "jogadores"));
+    dados = snap.docs.map(d => ({ ...d.data(), sala: d.ref.parent.parent.id })).filter(j => j.campanha === "na26");
+    desenhar();
+    $("#estado").textContent = `Actualizado às ${new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}`;
+  } catch (e) {
+    $("#estado").textContent = e.message === "config" ? "Falta configurar o Firebase." :
+      (e.code === "permission-denied" ? "Sem permissão de leitura: publique as regras novas do Firestore." : "Sem ligação à base de dados. Verifique a internet.");
+  }
+}
+
+function desenhar() {
+  const n = dados.length, fin = dados.filter(j => j.terminado);
+  const pares = dados.filter(j => Number.isInteger(j.antes) && Number.isInteger(j.depois));
+  const int = dados.map(j => j.intencao).filter(Boolean);
+  const util = dados.map(j => j.satisfacao).filter(Number.isInteger);
+  const salas = new Set(dados.map(j => j.sala));
+  const ac = media(fin.map(j => j.certas / 12 * 100));
+  const ka = media(pares.map(j => j.antes)), kd = media(pares.map(j => j.depois));
+  const ip = int.length ? 100 * int.filter(v => v === "sim" || v === "ja").length / int.length : NaN;
+  const kpi = (k, v, d) => `<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span><span class="d">${d}</span></div>`;
+  const na = "—";
+  $("#kpis").innerHTML = !n ? `<div class="kpi" style="grid-column:1/-1"><span class="vazio">Ainda não há resultados do Novembro Azul. Os dados aparecem aqui depois da primeira sessão.</span></div>` :
+    kpi("Participantes", fmt(n), `${fmt(fin.length)} terminaram · ${fmt(salas.size)} ${salas.size === 1 ? "sessão" : "sessões"}`) +
+    kpi("Respostas certas", isNaN(ac) ? na : fmt(ac) + "%", "média de quem terminou") +
+    kpi("Conhecimento (1–5)", isNaN(ka) ? na : `${fmt(ka, 1)} → <span class="up">${fmt(kd, 1)}</span>`, isNaN(ka) ? "sem respostas" : `antes → depois · +${fmt(kd - ka, 1)} pontos`) +
+    kpi("Intenção de check-up", isNaN(ip) ? na : fmt(ip) + "%", `${fmt(int.length)} respostas`) +
+    kpi("Utilidade da sessão", util.length ? fmt(media(util), 1) + " / 5" : na, `${fmt(util.length)} respostas`);
+
+  // Por empresa
+  const emp = Object.keys(EMP).map(k => {
+    const js = dados.filter(j => (j.empresa || "") === k);
+    const p = js.filter(j => Number.isInteger(j.antes) && Number.isInteger(j.depois));
+    const ii = js.map(j => j.intencao).filter(Boolean);
+    return { k, nome: EMP[k], n: js.length, pts: media(js.map(j => j.pontos || 0)), ac: media(js.filter(j => j.terminado).map(j => j.certas / 12 * 100)),
+      ka: media(p.map(j => j.antes)), kd: media(p.map(j => j.depois)), ip: ii.length ? 100 * ii.filter(v => v === "sim" || v === "ja").length / ii.length : NaN };
+  }).filter(e => e.n);
+  const c = (v, d = 0, suf = "") => isNaN(v) ? "—" : fmt(v, d) + suf;
+  $("#t-emp").innerHTML = emp.length ? `<table><tr><th>Empresa</th><th class="n">Pessoas</th><th class="n">Pontos (média)</th><th class="n">Certas</th><th class="n">Conhecimento</th><th class="n">Check-up</th></tr>` +
+    emp.map(e => `<tr><td>${e.nome}</td><td class="n">${fmt(e.n)}</td><td class="n">${c(e.pts)}</td><td class="n">${c(e.ac, 0, "%")}</td><td class="n">${isNaN(e.ka) ? "—" : fmt(e.ka, 1) + " → " + fmt(e.kd, 1)}</td><td class="n">${c(e.ip, 0, "%")}</td></tr>`).join("") + `</table>` : `<p class="vazio">Sem dados.</p>`;
+
+  // Intenção
+  const opt = [["sim", "Sim"], ["ja", "Já fiz este ano"], ["talvez", "Talvez"], ["nao", "Não"]];
+  $("#g-int").innerHTML = int.length ? opt.map(([v, t]) => { const k = int.filter(x => x === v).length, p = 100 * k / int.length;
+    return `<div class="hbar"><span>${t}</span><span class="t"><i style="width:${p}%"></i></span><span class="p">${fmt(p)}%</span></div>`; }).join("") : `<p class="vazio">Sem respostas.</p>`;
+
+  // Perguntas mais falhadas (taxa de erro entre quem recebeu a pergunta não é conhecida; mostra o número de erros)
+  const cont = new Map(); dados.forEach(j => (Array.isArray(j.falhas) ? j.falhas : []).forEach(id => cont.set(id, (cont.get(id) || 0) + 1)));
+  const top = [...cont.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  $("#l-falhas").innerHTML = top.length ? top.map(([id, k]) => { const q = BANCO[id]; if (!q) return "";
+    const certa = q.t === "tf" ? (q.a ? "Verdade" : "Mito") : q.o[q.a];
+    return `<div class="q"><span class="s">${q.t === "tf" ? "«" + q.s + "»" : q.s}</span><span class="c">${fmt(k)}<small>${k === 1 ? "erro" : "erros"}</small></span><span class="e"><b>${certa}.</b> ${q.e}</span></div>`; }).join("") : `<p class="vazio">Sem dados.</p>`;
+
+  // Sessões
+  const ses = [...salas].map(s => { const js = dados.filter(j => j.sala === s); const t = js.map(j => j.inicio?.toMillis?.()).filter(Boolean);
+    return { s, n: js.length, fin: js.filter(j => j.terminado).length, t: t.length ? Math.min(...t) : 0, pts: media(js.map(j => j.pontos || 0)) }; }).sort((a, b) => b.t - a.t);
+  $("#t-ses").innerHTML = ses.length ? `<table><tr><th>Data</th><th>Sala</th><th class="n">Participantes</th><th class="n">Terminaram</th><th class="n">Pontos (média)</th></tr>` +
+    ses.map(x => `<tr><td>${x.t ? new Date(x.t).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" }) : "—"}</td><td>${x.s}</td><td class="n">${fmt(x.n)}</td><td class="n">${fmt(x.fin)}</td><td class="n">${c(x.pts)}</td></tr>`).join("") + `</table>` : `<p class="vazio">Sem sessões.</p>`;
+
+  resumo = [["Indicador", "Valor"], ["Participantes", n], ["Terminaram", fin.length], ["Sessões", salas.size],
+    ["Respostas certas (%)", isNaN(ac) ? "" : ac.toFixed(1)], ["Conhecimento antes (1-5)", isNaN(ka) ? "" : ka.toFixed(2)], ["Conhecimento depois (1-5)", isNaN(kd) ? "" : kd.toFixed(2)],
+    ["Intenção de check-up (%)", isNaN(ip) ? "" : ip.toFixed(1)], ["Utilidade (1-5)", util.length ? media(util).toFixed(2) : ""],
+    ...emp.map(e => [`${e.nome}: pessoas / pontos médios / certas % / intenção %`, `${e.n} / ${isNaN(e.pts) ? "" : e.pts.toFixed(0)} / ${isNaN(e.ac) ? "" : e.ac.toFixed(1)} / ${isNaN(e.ip) ? "" : e.ip.toFixed(1)}`]),
+    ...top.map(([id, k]) => [`Pergunta mais falhada: ${BANCO[id]?.s || id}`, k])];
+}
+
+$("#b-act").addEventListener("click", carregar);
+$("#b-csv").addEventListener("click", () => {
+  const csv = "﻿" + resumo.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a"); a.href = url; a.download = `Novembro-Azul-2026-resultados-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+});
+carregar();
+setInterval(carregar, 60000);   // actualiza sozinho a cada minuto
+</script>
+</body>
+</html>
