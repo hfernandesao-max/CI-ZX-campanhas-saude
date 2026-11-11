@@ -59,7 +59,7 @@ Portal igual ao do Outubro Rosa (vídeo, quiz individual, QR da sala, ranking ao
 
 - Endereço: <https://hfernandesao-max.github.io/CI-ZX-campanhas-saude/novembro-azul-2026/>
 - QR do portal para imprimir: `novembro-azul-2026/qr-portal.png`
-- 12 perguntas por pessoa (6 «Mito ou Verdade?» e 6 de escolha múltipla), de um banco de 61. Na sala, cada participante recebe um bloco conforme a ordem de entrada: cada grupo de 5 participantes seguidos tem perguntas totalmente diferentes e, para 50 pessoas, cada pergunta sai 8 a 10 vezes. No modo individual, o mesmo telemóvel não repete perguntas enquanto houver perguntas por ver.
+- 12 perguntas por pessoa (6 «Mito ou Verdade?» e 6 de escolha múltipla), de um banco de 150, sobre a saúde do homem. Na sala, cada participante recebe um bloco conforme a ordem de entrada: cada grupo de 12 participantes seguidos não tem nenhuma pergunta em comum e, para 50 pessoas, cada pergunta sai 3 a 5 vezes. Ninguém recebe duas perguntas sobre o mesmo assunto. No modo individual, o mesmo telemóvel não repete perguntas enquanto houver perguntas por ver.
 - Preparado para cerca de 50 participantes: os telemóveis não descarregam o vídeo; o ranking mostra os 10 primeiros e «+ N participantes».
 - Usa o mesmo projecto Firebase e as mesmas regras do Firestore; não é preciso configurar nada de novo.
 
