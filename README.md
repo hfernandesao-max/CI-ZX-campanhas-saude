@@ -59,7 +59,7 @@ Portal igual ao do Outubro Rosa (vídeo, quiz individual, QR da sala, ranking ao
 
 - Endereço: <https://hfernandesao-max.github.io/CI-ZX-campanhas-saude/novembro-azul-2026/>
 - QR do portal para imprimir: `novembro-azul-2026/qr-portal.png`
-- 10 perguntas por jogo (5 «Mito ou Verdade?» e 5 de escolha múltipla), sorteadas de um banco de 29.
+- 12 perguntas por pessoa (6 «Mito ou Verdade?» e 6 de escolha múltipla), sorteadas de um banco de 61; o mesmo telemóvel não repete perguntas noutro jogo enquanto houver perguntas por ver.
 - Usa o mesmo projecto Firebase e as mesmas regras do Firestore; não é preciso configurar nada de novo.
 
 ```
@@ -72,7 +72,14 @@ novembro-azul-2026/
   qr-portal.png                 QR do portal para imprimir
 ```
 
-No dia (13 de Novembro): no portátil ligado ao projector, abrir o endereço acima e tocar em **Fazer o quiz**; os colaboradores lêem o QR, escrevem o nome e respondem às 10 perguntas. O resto do fluxo é igual ao do Outubro Rosa.
+No dia (13 de Novembro), **modo automático**, sem intervenção do apresentador:
+
+- Abrir o endereço com `?auto` no fim (`…/novembro-azul-2026/?auto`), de preferência pelo atalho «INICIAR - Novembro Azul.bat» do pacote da pen, que abre o Edge em ecrã inteiro (modo quiosque) e com som.
+- Sequência: vídeo → QR da sala → ranking ao vivo → perguntas mais falhadas (45 s) → pódio com o resumo do inquérito.
+- A ronda fecha sozinha quando todos terminam ou 8 minutos depois de entrar o primeiro participante.
+- Para sair do ecrã automático: Alt + F4.
+
+Sem `?auto`, o portal funciona como o do Outubro Rosa (toque em **Fazer o quiz**).
 
 ## Nova campanha
 

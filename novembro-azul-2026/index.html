@@ -247,7 +247,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
         </a>
         <a class="tile q" href="#quiz" id="tile-quiz">
           <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 9a3 3 0 1 1 4.1 2.8c-.8.3-1.3 1-1.3 1.9V14"/><path d="M12 18h.01"/></svg></span>
-          <span class="tx"><span class="k">10 perguntas</span><h2>Fazer o quiz</h2><p>Mito ou Verdade? Teste o que sabe sobre a saúde do homem.</p>
+          <span class="tx"><span class="k">12 perguntas</span><h2>Fazer o quiz</h2><p>Mito ou Verdade? Teste o que sabe sobre a saúde do homem.</p>
             <span class="go">Começar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
         </a>
       </nav>
@@ -291,7 +291,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
       <aside class="join">
         <div class="qr-card" id="qr-sala"></div>
         <h2>Aponte a câmara do telemóvel.</h2>
-        <p>Escreva o seu nome e responda às 10 perguntas. O ranking aparece aqui ao vivo.</p>
+        <p>Escreva o seu nome e responda às 12 perguntas. O ranking aparece aqui ao vivo.</p>
         <div class="code">Sala <b id="sala-code">—</b></div>
         <div class="stats"><span class="chip" id="st-total">0 participantes</span><span class="chip" id="st-done">0 terminaram</span></div>
       </aside>
@@ -349,12 +349,25 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
 <script src="../assets/qrcode.js"></script>
 <script type="module">
 import { sortear, N_PERGUNTAS, pontosPara, BANCO } from "./questoes.js";
+
+/* Perguntas já vistas neste telemóvel, por jogo: um novo jogo dá prioridade às que ainda não saíram,
+   e recarregar a página no mesmo jogo mantém exactamente as mesmas perguntas. */
+function sorteio(jogo, semente) {
+  let vistas = {};
+  try { vistas = JSON.parse(localStorage.getItem("na26-vistas") || "{}") || {}; } catch (e) { vistas = {}; }
+  const outras = Object.entries(vistas).filter(([k]) => k !== jogo).flatMap(([, ids]) => ids);
+  const lista = sortear(semente, outras);
+  vistas[jogo] = lista.map(q => q.id);
+  try { localStorage.setItem("na26-vistas", JSON.stringify(vistas)); } catch (e) {}
+  return lista;
+}
 import { firebaseConfig, configurado } from "./firebase-config.js";
 
 const BASE = location.origin + location.pathname.replace(/index\.html$/, "");
 const $ = (s) => document.querySelector(s);
 const L = ["A", "B", "C", "D"];
 const params = new URLSearchParams(location.search);
+const AUTO = params.has("auto");   // modo automático: vídeo → quiz → ranking → perguntas falhadas → pódio, sem toques
 let salaGuardada = "";
 try { salaGuardada = sessionStorage.getItem("na26-sala-jogo") || ""; } catch (e) {}
 const SALA = ((params.get("sala") || salaGuardada || "")).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
@@ -446,7 +459,14 @@ $("#tile-video").addEventListener("click", (ev) => {
 });
 // Ao terminar o vídeo, sai do ecrã inteiro e volta ao início
 // Ao terminar, volta sozinho ao início (mantém o ecrã inteiro para o passo seguinte)
-video.addEventListener("ended", () => { setTimeout(() => { ir("inicio"); }, 600); });
+video.addEventListener("ended", () => { setTimeout(() => { AUTO ? abrirSala() : ir("inicio"); }, 600); });
+// Se o vídeo não carregar, o modo automático segue directamente para o quiz
+video.addEventListener("error", () => { if (AUTO && vista === "video") abrirSala(); });
+function abrirSala() {
+  R.sala = novaSala(); try { localStorage.setItem("na26-sala", R.sala); } catch (e) {}
+  R.auto = true;
+  if (vista === "ranking") ligarSala(); else ir("ranking");
+}
 // A barra de cima do vídeo esconde-se ao fim de 2,5 s sem mexer no rato
 let idleT = 0;
 const acordar = () => { $("#v-video").classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => $("#v-video").classList.add("idle"), 2500); };
@@ -464,9 +484,7 @@ $("#tile-quiz").addEventListener("click", (ev) => {
   if (ecraPequeno()) return;                       // telemóvel: segue para #quiz normalmente
   ev.preventDefault();
   paginaEmEcraInteiro();
-  R.sala = novaSala(); try { localStorage.setItem("na26-sala", R.sala); } catch (e) {}
-  R.auto = true;
-  if (vista === "ranking") ligarSala(); else ir("ranking");
+  abrirSala();
 });
 // Qualquer toque nas vistas do apresentador mantém o ecrã inteiro
 ["v-inicio", "v-ranking", "v-revisao", "v-podio"].forEach(id => $("#" + id).addEventListener("click", () => { if (!ecraPequeno()) paginaEmEcraInteiro(); }));
@@ -492,7 +510,7 @@ function quizEntrar() {
   show(`
     <img class="ribbon" src="laco-azul.png" alt="" aria-hidden="true">
     <h1 class="big t1 grad">Mito ou Verdade?</h1>
-    <p class="lead">${SALA ? "10 perguntas. Quanto mais depressa acertar, mais pontos ganha." : "10 perguntas sobre a saúde do homem. Descubra o que diz a ciência."}</p>
+    <p class="lead">${SALA ? "12 perguntas, diferentes para cada pessoa. Quanto mais depressa acertar, mais pontos ganha." : "12 perguntas sobre a saúde do homem. Descubra o que diz a ciência."}</p>
     <form class="field" id="f-nome" novalidate>
       <label for="nome">${SALA ? "O seu primeiro nome" : "O seu nome"}</label>
       <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="Ex.: João" value="${esc(nomeGuardado)}">
@@ -509,13 +527,13 @@ async function comecar(ev) {
   if (!nome) { $("#msg").textContent = "Escreva o seu nome para começar."; $("#nome").focus(); return; }
   try { localStorage.setItem("na26-nome", nome); } catch (e) {}
   Q.nome = nome; Q.iniciado = true;
-  Q.lista = sortear(Math.random());   // modo individual: sorteio novo a cada jogo
+  Q.lista = sorteio("solo-" + Date.now(), Math.random());   // modo individual: sorteio novo a cada jogo, sem repetir perguntas já vistas
   if (SALA) {
     $("#b-comecar").disabled = true; $("#msg").textContent = "A ligar…";
     try {
       const { uid, db, fs } = await firebase();
       Q.ref = fs.doc(db, "salas", SALA, "jogadores", uid);
-      Q.lista = sortear(uid + ":" + SALA);   // perguntas próprias deste telemóvel (iguais se recarregar)
+      Q.lista = sorteio("sala-" + SALA, uid + ":" + SALA);   // perguntas próprias deste telemóvel (iguais se recarregar)
       const snap = await fs.getDoc(Q.ref);
       if (snap.exists()) {               // retomar onde ficou (ex.: recarregou a página)
         const d = snap.data();
@@ -628,8 +646,10 @@ function inquerito(n) {
 /* =====================================================
    RANKING (ecrã do apresentador)
    ===================================================== */
-let R = { sala: "", unsub: null, jogadores: [], auto: true, conta: 0, contaT: 0 };
-const ESPERA_PODIO = 15;   // segundos depois de todas terminarem
+let R = { sala: "", unsub: null, jogadores: [], auto: true, conta: 0, contaT: 0, primeiro: 0, limiteT: 0, esgotado: false, revT: 0 };
+const ESPERA_PODIO = 15;      // segundos depois de todos terminarem
+const TEMPO_MAX = 8 * 60;      // a ronda fecha sozinha 8 minutos depois de entrar o primeiro participante
+const ESPERA_VENCEDORES = 45;  // segundos nas perguntas mais falhadas antes de abrir o pódio
 function novaSala() {
   const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = "";
   const r = crypto.getRandomValues(new Uint8Array(5)); r.forEach(x => s += A[x % A.length]);
@@ -648,7 +668,7 @@ async function ligarSala() {
   $("#sala-code").textContent = R.sala;
   $("#qr-sala").innerHTML = qrSVG(`${BASE}?sala=${R.sala}`);
   if (R.unsub) { R.unsub(); R.unsub = null; }
-  R.jogadores = []; R.auto = true; pararConta(); desenhar();
+  R.jogadores = []; R.auto = true; pararConta(); pararRelogios(); desenhar();
   try {
     const { db, fs } = await firebase();
     R.unsub = fs.onSnapshot(fs.collection(db, "salas", R.sala, "jogadores"), (snap) => {
@@ -674,8 +694,9 @@ function desenhar() {
   sd.classList.toggle("hl", total > 0 && done === total);
   $("#v-ranking").classList.toggle("lobby", total === 0);
   const todas = total > 0 && done === total;
-  if (todas && R.auto) { if (!R.contaT) iniciarConta(); }
-  else { pararConta(); $("#st-msg").textContent = todas ? "Todos terminaram!" : ""; }
+  if (total > 0 && !R.primeiro) iniciarRelogio();
+  if ((todas || R.esgotado) && R.auto) { if (!R.contaT) iniciarConta(todas); }
+  else { pararConta(); $("#st-msg").textContent = todas ? "Todos terminaram!" : (R.primeiro && !R.esgotado ? `A ronda fecha em ${mmss(TEMPO_MAX - Math.floor((Date.now() - R.primeiro) / 1000))}` : ""); }
   const rows = $("#rows");
   if (!total) { rows.innerHTML = `<div class="empty">À espera dos primeiros participantes…</div>`; return; }
   // quantas linhas cabem no ecrã (sem barras de deslocamento)
@@ -700,12 +721,23 @@ function desenhar() {
 }
 addEventListener("resize", () => { if (vista === "ranking") desenhar(); });
 
-function iniciarConta() {
+const mmss = (t) => { t = Math.max(0, t); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
+function iniciarRelogio() {
+  R.primeiro = Date.now(); R.esgotado = false;
+  clearInterval(R.limiteT);
+  R.limiteT = setInterval(() => {
+    const falta = TEMPO_MAX - Math.floor((Date.now() - R.primeiro) / 1000);
+    if (falta <= 0) { clearInterval(R.limiteT); R.limiteT = 0; R.esgotado = true; }
+    if (vista === "ranking" && !R.contaT) desenhar();
+  }, 1000);
+}
+function pararRelogios() { clearInterval(R.limiteT); R.limiteT = 0; R.primeiro = 0; R.esgotado = false; pararRevisao(); }
+function iniciarConta(todas) {
   R.conta = ESPERA_PODIO;
   const tick = () => {
     const m = $("#st-msg"); m.innerHTML = "";
     const span = document.createElement("span"); span.className = "auto";
-    span.textContent = `Todos terminaram! Resultados em ${R.conta} s`;
+    span.textContent = `${todas ? "Todos terminaram!" : "Tempo terminado!"} Resultados em ${R.conta} s`;
     const b = document.createElement("button"); b.type = "button"; b.textContent = "Esperar";
     b.addEventListener("click", () => { R.auto = false; pararConta(); $("#st-msg").textContent = "Todos terminaram!"; });
     span.appendChild(b); m.appendChild(span);
@@ -741,8 +773,21 @@ function mostrarRevisao() {
     c.append(n, t, pc); box.appendChild(c);
   });
   ir("revisao");
+  iniciarRevisao();
 }
-$("#b-rev-podio").addEventListener("click", () => mostrarPodio());
+function iniciarRevisao() {
+  pararRevisao();
+  let n = ESPERA_VENCEDORES;
+  const b = $("#b-rev-podio");
+  const tick = () => {
+    b.textContent = `Mostrar vencedores (${n} s)`;
+    if (n-- <= 0) { pararRevisao(); mostrarPodio(); return; }
+    R.revT = setTimeout(tick, 1000);
+  };
+  tick();
+}
+function pararRevisao() { clearTimeout(R.revT); R.revT = 0; const b = $("#b-rev-podio"); if (b) b.textContent = "Mostrar vencedores"; }
+$("#b-rev-podio").addEventListener("click", () => { pararRevisao(); mostrarPodio(); });
 function mostrarPodio() {
   const top = ordenar(R.jogadores);
   [1, 2, 3].forEach(k => {
@@ -780,6 +825,13 @@ $("#b-fs").addEventListener("click", () => {
 });
 
 route();
+// Modo automático: começa logo pelo vídeo (com som, se o navegador deixar; senão sem som) e segue sozinho
+if (AUTO) {
+  ir("video");
+  video.currentTime = 0;
+  const p = video.play();
+  if (p && p.catch) p.catch(() => { video.muted = true; video.play().catch(() => abrirSala()); });
+}
 </script>
 </body>
 </html>
