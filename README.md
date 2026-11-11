@@ -53,6 +53,27 @@ Os valores de `firebaseConfig` identificam o projecto e podem estar num reposit�
 3. Quando todas terminam, o ecrã mostra sozinho as 3 perguntas mais falhadas (para comentar) e, com um toque em **Mostrar vencedoras**, o pódio com a utilidade média da sessão.
 4. Para outra ronda, voltar ao **Início** e tocar outra vez em **Fazer o quiz** (nova sala e novo QR).
 
+## Novembro Azul 2026
+
+Portal igual ao do Outubro Rosa (vídeo, quiz individual, QR da sala, ranking ao vivo, perguntas mais falhadas e pódio), dedicado à prevenção do cancro da próstata, para os colaboradores.
+
+- Endereço: <https://hfernandesao-max.github.io/CI-ZX-campanhas-saude/novembro-azul-2026/>
+- QR do portal para imprimir: `novembro-azul-2026/qr-portal.png`
+- 10 perguntas por jogo (5 «Mito ou Verdade?» e 5 de escolha múltipla), sorteadas de um banco de 29.
+- Usa o mesmo projecto Firebase e as mesmas regras do Firestore; não é preciso configurar nada de novo.
+
+```
+novembro-azul-2026/
+  index.html                    A página (todas as vistas)
+  questoes.js                   Banco de perguntas e regra de pontuação
+  firebase-config.js            Configuração do Firebase (igual à do Outubro Rosa)
+  video.mp4, poster.jpg         Vídeo e imagem de capa
+  laco-azul.png, og.jpg         Laço azul e imagem de partilha
+  qr-portal.png                 QR do portal para imprimir
+```
+
+No dia (13 de Novembro): no portátil ligado ao projector, abrir o endereço acima e tocar em **Fazer o quiz**; os colaboradores lêem o QR, escrevem o nome e respondem às 10 perguntas. O resto do fluxo é igual ao do Outubro Rosa.
+
 ## Nova campanha
 
-Acrescentar uma pasta (por exemplo `novembro-azul-2026/`) com as suas perguntas e materiais.
+Acrescentar uma pasta (por exemplo `dezembro-2026/`) com a sua página, as perguntas e os materiais, como em `novembro-azul-2026/`.

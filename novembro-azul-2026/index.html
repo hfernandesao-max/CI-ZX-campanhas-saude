@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050B1A">
+<meta name="description" content="Novembro Azul 2026 — ConsultIT e Zentrix. Vídeo e quiz sobre a prevenção e a detecção precoce do cancro da próstata.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Novembro Azul 2026 · ConsultIT e Zentrix">
+<meta property="og:description" content="Vídeo e quiz sobre a prevenção e a detecção precoce do cancro da próstata.">
+<meta property="og:url" content="https://hfernandesao-max.github.io/CI-ZX-campanhas-saude/novembro-azul-2026/">
+<meta property="og:image" content="https://hfernandesao-max.github.io/CI-ZX-campanhas-saude/novembro-azul-2026/og.jpg">
+<meta property="og:locale" content="pt_PT">
+<meta name="twitter:card" content="summary_large_image">
+<title>Novembro Azul · ConsultIT e Zentrix</title>
+<link rel="icon" href="laco-azul.png">
+<link rel="apple-touch-icon" href="laco-azul.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Uma só página, sempre do tamanho do ecrã (sem barras de deslocamento).
+   Vistas: início · vídeo · quiz (telemóvel) · ranking (projector) · pódio */
+:root {
+  --bg: #050B1A; --surface: #0F1A33; --surface-2: #16244A; --line: rgba(255,255,255,.08);
+  --fg: #F5F8FD; --muted: #A9BAD6; --faint: #7F92B3;
+  --pink: #7DB4FF; --violet: #4C97FF; --blue: #2F80ED; --gold: #FFD27A;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  --pad-x: max(20px, env(safe-area-inset-left)); --pad-r: max(20px, env(safe-area-inset-right));
+  --pad-t: max(16px, env(safe-area-inset-top)); --pad-b: max(16px, env(safe-area-inset-bottom));
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; }
+[hidden] { display: none !important; }
+a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; border: 0; color: inherit; background: none; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.grad { background: linear-gradient(90deg, var(--pink) 0%, var(--violet) 55%, var(--blue) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+.view {
+  position: fixed; inset: 0; display: none; flex-direction: column; overflow: hidden;
+  padding: var(--pad-t) var(--pad-r) var(--pad-b) var(--pad-x);
+}
+.view.on { display: flex; animation: rise .5s cubic-bezier(.2,.8,.2,1) both; }
+.inner { width: 100%; max-width: 1280px; margin: 0 auto; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 44px; flex-shrink: 0; }
+.top.center { justify-content: center; }
+.selo { height: clamp(32px, 5vh, 52px); width: auto; display: block; }
+.pill { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px 10px 12px; border-radius: 999px; background: var(--surface); font-weight: 600; font-size: 15px; text-decoration: none; color: var(--fg); }
+.pill svg { width: 18px; height: 18px; }
+.eyebrow { font-size: clamp(11px, 1.5vh, 15px); font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--pink); }
+
+/* ---------- Início ---------- */
+.home { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr auto; gap: clamp(14px, 3vh, 36px); padding-top: clamp(8px, 2vh, 24px); }
+.hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vh, 16px); }
+.ribbon { height: clamp(52px, 11vh, 120px); width: auto; filter: drop-shadow(0 0 36px rgba(76,151,255,.4)); animation: float 6s ease-in-out infinite; }
+.hero h1 { margin: 0; font-size: clamp(32px, min(7.6vw, 9vh), 96px); font-weight: 800; letter-spacing: -0.045em; line-height: 1; text-wrap: balance; }
+.hero p { margin: 0; font-size: clamp(14px, 2.1vh, 21px); color: var(--muted); line-height: 1.4; max-width: 40ch; text-wrap: balance; }
+
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 24px); min-height: 0; }
+.tile {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-height: 0;
+  padding: clamp(18px, 3.4vh, 40px); border-radius: clamp(22px, 3vh, 32px); background: var(--surface); color: var(--fg);
+  text-align: left; text-decoration: none; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line);
+  transition: transform .35s cubic-bezier(.2,.8,.2,1), background .35s ease, box-shadow .35s ease;
+}
+.tile::before { content: ""; position: absolute; inset: -40% -20% auto auto; width: 70%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, var(--glow) 0%, transparent 65%); opacity: .55; pointer-events: none; transition: opacity .35s ease; }
+.tile.v { --glow: rgba(76,151,255,.55); } .tile.q { --glow: rgba(169,204,255,.4); }
+.tile:hover { transform: translateY(-4px); background: var(--surface-2); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 30px 60px -20px rgba(0,0,0,.8); }
+.tile:hover::before { opacity: .9; }
+.ico { width: clamp(46px, 8vh, 80px); height: clamp(46px, 8vh, 80px); border-radius: 50%; display: grid; place-items: center; background: var(--fg); color: #000; position: relative; flex-shrink: 0; }
+.ico svg { width: 48%; height: 48%; }
+.tile .tx { position: relative; display: flex; flex-direction: column; gap: clamp(4px, .8vh, 10px); }
+.tile .k { font-size: clamp(12px, 1.6vh, 15px); font-weight: 600; color: var(--muted); }
+.tile h2 { margin: 0; font-size: clamp(26px, min(5vw, 6.4vh), 60px); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+.tile p { margin: 0; font-size: clamp(13px, 1.9vh, 18px); color: var(--muted); line-height: 1.4; }
+.go { display: inline-flex; align-items: center; gap: 8px; font-size: clamp(14px, 1.9vh, 17px); font-weight: 600; }
+.go svg { width: 18px; height: 18px; transition: transform .35s ease; }
+.tile:hover .go svg { transform: translateX(4px); }
+
+.bottom { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.take { display: flex; align-items: center; gap: 20px; }
+.qr-card { background: #fff; padding: 8px; border-radius: 14px; flex-shrink: 0; }
+.qr-card svg { display: block; width: 100%; height: 100%; }
+.take .qr-card { width: clamp(96px, 14vh, 140px); height: clamp(96px, 14vh, 140px); }
+.take h3 { margin: 0 0 4px; font-size: clamp(16px, 2.2vh, 22px); font-weight: 700; }
+.take p { margin: 0; color: var(--muted); font-size: clamp(13px, 1.7vh, 16px); line-height: 1.45; max-width: 46ch; }
+.fine { margin: 0; color: var(--faint); font-size: 12px; line-height: 1.5; text-align: center; }
+.fine a { color: var(--faint); }
+
+/* ---------- Vídeo ---------- */
+.player { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding-block: 16px; }
+.player video { max-width: 100%; max-height: 100%; width: auto; height: auto; border-radius: 20px; background: #000; box-shadow: 0 40px 80px -30px rgba(76,151,255,.4); }
+
+/* ---------- Quiz (telemóvel) ---------- */
+.stage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: clamp(12px, 2.6vh, 28px); width: 100%; max-width: 760px; margin: 0 auto; }
+.big { margin: 0; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; text-wrap: balance; }
+.big.t1 { font-size: clamp(38px, min(10vw, 8vh), 88px); }
+.big.q  { font-size: clamp(22px, min(6.4vw, 4.6vh), 52px); }
+.big.v  { font-size: clamp(48px, min(16vw, 11vh), 132px); }
+.big.vm { font-size: clamp(24px, min(6.4vw, 4.8vh), 52px); }
+.lead { margin: 0; font-size: clamp(15px, 2.2vh, 22px); color: var(--muted); line-height: 1.4; max-width: 34ch; text-wrap: balance; }
+.expl { margin: 0; font-size: clamp(15px, 2.3vh, 24px); line-height: 1.4; font-weight: 500; max-width: 34ch; text-wrap: balance; }
+.small { margin: 0; font-size: clamp(12px, 1.6vh, 15px); color: var(--faint); }
+.field { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.field label { font-size: 14px; font-weight: 600; color: var(--muted); }
+.field input { width: 100%; min-height: 56px; padding: 12px 18px; border-radius: 16px; border: 0; background: var(--surface); color: var(--fg); font-size: 20px; box-shadow: inset 0 0 0 1px var(--line); }
+.field input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--blue); }
+.btn { min-height: 54px; padding: 14px 34px; border-radius: 999px; background: var(--fg); color: #000; font-size: clamp(16px, 2.2vh, 20px); font-weight: 700; }
+.btn.ghost { background: var(--surface); color: var(--fg); }
+.btn:disabled { opacity: .45; cursor: default; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 520px; }
+.choice { min-height: clamp(56px, 9vh, 88px); border-radius: 22px; font-size: clamp(20px, 3vh, 30px); font-weight: 800; }
+.choice.yes { background: var(--pink); color: #000; }
+.choice.no { box-shadow: inset 0 0 0 3px var(--fg); color: var(--fg); }
+.opts { display: grid; gap: clamp(8px, 1.2vh, 12px); width: 100%; }
+.opt { display: flex; align-items: center; gap: 14px; text-align: left; min-height: clamp(50px, 7.6vh, 72px); padding: 10px 16px; border-radius: 18px; background: var(--surface); color: var(--fg); font-size: clamp(15px, 2.3vh, 22px); font-weight: 600; box-shadow: inset 0 0 0 1px var(--line); }
+.opt:hover { background: var(--surface-2); }
+.opt .l { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--fg); color: #000; font-size: 15px; font-weight: 800; }
+.timer { width: 100%; max-width: 520px; height: 6px; border-radius: 3px; background: #1E2C4F; overflow: hidden; }
+.timer i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--pink), var(--blue)); transform-origin: left; }
+.tag { font-size: clamp(14px, 2vh, 18px); font-weight: 700; padding: 8px 16px; border-radius: 999px; }
+.tag.ok { background: var(--pink); color: #000; } .tag.ko { background: var(--surface); }
+.qhead { display: flex; justify-content: space-between; width: 100%; font-size: 14px; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Ranking (projector) ---------- */
+.rank { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(260px, 30%) 1fr; gap: clamp(20px, 3vw, 48px); padding-top: clamp(12px, 2vh, 24px); }
+.join { display: flex; flex-direction: column; justify-content: center; gap: clamp(10px, 2vh, 20px); min-height: 0; }
+.join .qr-card { width: min(100%, 42vh); aspect-ratio: 1; padding: 14px; border-radius: 22px; }
+.join h2 { margin: 0; font-size: clamp(24px, 4vh, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+.join p { margin: 0; color: var(--muted); font-size: clamp(14px, 2vh, 18px); }
+.code { font-size: clamp(14px, 1.9vh, 18px); color: var(--muted); }
+.code b { color: var(--fg); letter-spacing: .12em; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip { padding: 8px 14px; border-radius: 999px; background: var(--surface); font-size: clamp(13px, 1.8vh, 16px); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip.hl { background: var(--pink); color: #000; }
+.board { display: flex; flex-direction: column; min-height: 0; gap: clamp(10px, 1.6vh, 16px); }
+.board-h { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.board-h h1 { margin: 0; font-size: clamp(28px, 5.4vh, 60px); font-weight: 800; letter-spacing: -0.04em; }
+.rows { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.row { display: grid; grid-template-columns: 2.4em 1fr minmax(80px, 22%) 5.5em; align-items: center; gap: 14px; padding: 0 18px; height: var(--rh, 56px); flex-shrink: 0; border-radius: 16px; background: var(--surface); font-size: clamp(15px, 2.3vh, 24px); font-variant-numeric: tabular-nums; }
+.row .p { font-weight: 800; color: var(--muted); }
+.row:nth-child(1) .p { color: var(--gold); } .row:nth-child(2) .p { color: #D9D9DE; } .row:nth-child(3) .p { color: #E3A27A; }
+.row .n { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .bar { height: 8px; border-radius: 4px; background: #1E2C4F; overflow: hidden; }
+.row .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--pink), var(--blue)); transition: width .5s ease; }
+.row .s { text-align: right; font-weight: 800; }
+.row.done .n::after { content: " ✓"; color: var(--pink); }
+.more { color: var(--muted); font-size: 15px; text-align: center; }
+.empty { flex: 1; display: grid; place-items: center; color: var(--muted); font-size: clamp(16px, 2.4vh, 22px); text-align: center; border-radius: 20px; box-shadow: inset 0 0 0 1px var(--line); }
+.ctrl { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* ---------- Pódio ---------- */
+.podium-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(16px, 3vh, 36px); text-align: center; }
+.podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: clamp(12px, 2vw, 24px); width: min(100%, 980px); height: min(46vh, 440px); }
+.step { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; height: 100%; min-width: 0; }
+.step .who { font-size: clamp(18px, 3vh, 34px); font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.step .pts { color: var(--muted); font-size: clamp(14px, 2vh, 20px); font-variant-numeric: tabular-nums; }
+.block { width: 100%; border-radius: 22px 22px 8px 8px; display: grid; place-items: center; font-size: clamp(40px, 8vh, 90px); font-weight: 800; color: #000; animation: grow .9s cubic-bezier(.2,.8,.2,1) both; transform-origin: bottom; }
+.s1 .block { height: 62%; background: linear-gradient(180deg, var(--pink), var(--violet)); animation-delay: .9s; }
+.s2 .block { height: 44%; background: #D9D9DE; animation-delay: .5s; }
+.s3 .block { height: 32%; background: #E3A27A; animation-delay: .1s; }
+.lanche { margin: 0; font-size: clamp(20px, 3.2vh, 34px); font-weight: 700; }
+
+/* Vídeo em modo cinema: ocupa o ecrã todo; a barra de cima desaparece sozinha */
+#v-video { padding: 0; background: #000; }
+#v-video .inner { max-width: none; }
+#v-video .top { position: absolute; z-index: 2; left: 0; right: 0; top: 0; padding: var(--pad-t) var(--pad-r) 0 var(--pad-x); transition: opacity .5s ease; }
+#v-video.idle .top { opacity: 0; pointer-events: none; }
+#v-video.idle { cursor: none; }
+#v-video .player { padding: 0; }
+#v-video .player video { width: 100%; height: 100%; max-height: 100%; border-radius: 0; box-shadow: none; object-fit: contain; }
+
+/* Ranking — fase de entrada: só o QR, em grande, até ao primeiro participante */
+#v-ranking.lobby .rank { grid-template-columns: 1fr; }
+#v-ranking.lobby .board { display: none; }
+#v-ranking.lobby .join { align-items: center; text-align: center; }
+#v-ranking.lobby .join .qr-card { width: min(58vh, 80vw); padding: 18px; border-radius: 28px; box-shadow: 0 30px 80px -20px rgba(76,151,255,.45); }
+#v-ranking.lobby .join h2 { font-size: clamp(30px, 6vh, 68px); }
+#v-ranking.lobby .join p { font-size: clamp(16px, 2.6vh, 24px); }
+#v-ranking.lobby .stats { display: none; }
+.auto { display: inline-flex; align-items: center; gap: 10px; font-size: clamp(14px, 2vh, 18px); font-weight: 700; color: var(--fg); }
+.auto button { min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--surface); font-size: 14px; font-weight: 600; }
+.ctrl .btn { min-height: 44px; padding: 10px 22px; font-size: 15px; }
+
+.privacy { font-size: 13px; line-height: 1.45; color: var(--faint); }
+.rate { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.stars { display: flex; gap: 8px; }
+.stars button { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); color: var(--fg); font-size: 18px; font-weight: 700; box-shadow: inset 0 0 0 1px var(--line); }
+.stars button:hover { background: var(--pink); color: #000; }
+.rate-l { display: flex; justify-content: space-between; width: 272px; font-size: 12px; color: var(--faint); }
+/* Revisão: as perguntas que a sala mais falhou */
+.rev { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: clamp(14px, 2.4vh, 28px); padding-top: clamp(8px, 2vh, 24px); }
+.rev-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.rev-h h1 { margin: 0; font-size: clamp(30px, 6vh, 68px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+.rev-list { flex: 1; min-height: 0; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.6vh, 16px); }
+.rev-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(14px, 2vw, 28px); padding: clamp(14px, 2.4vh, 28px) clamp(18px, 2.4vw, 32px); border-radius: 24px; background: var(--surface); min-height: 0; overflow: hidden; }
+.rev-n { font-size: clamp(28px, 5vh, 56px); font-weight: 800; color: var(--pink); font-variant-numeric: tabular-nums; }
+.rev-q { margin: 0 0 6px; font-size: clamp(17px, 2.7vh, 28px); font-weight: 700; line-height: 1.2; }
+.rev-a { margin: 0; font-size: clamp(14px, 2vh, 20px); color: var(--muted); line-height: 1.4; }
+.rev-a b { color: var(--fg); }
+.rev-pct { text-align: right; font-size: clamp(13px, 1.8vh, 17px); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rev-pct b { display: block; font-size: clamp(22px, 3.6vh, 40px); color: var(--fg); }
+.sat { color: var(--muted); font-size: clamp(13px, 1.8vh, 16px); }
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .view.on, .ribbon, .block { animation: none; } .tile, .go svg { transition: none; } }
+
+@media (max-width: 760px) {
+  .tiles { grid-template-columns: 1fr; }
+  .tile { flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; }
+  .tile p, .tile .go { display: none; }
+  .bottom .take { display: none; }
+  .bottom { justify-content: center; } .fine { text-align: center; }
+  .rank { grid-template-columns: 1fr; }
+  .join .qr-card { display: none; }
+  .row { grid-template-columns: 2em 1fr 5em; } .row .bar { display: none; }
+}
+@media (max-height: 560px) { .hero p, .tile p { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- ========== INÍCIO ========== -->
+<section class="view" id="v-inicio" aria-label="Início">
+  <div class="inner">
+    <div class="top center"><img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix"></div>
+    <div class="home">
+      <div class="hero">
+        <img class="ribbon" src="laco-azul.png" alt="" aria-hidden="true">
+        <span class="eyebrow">Novembro Azul 2026</span>
+        <h1 class="grad">Prevenir é o melhor código.</h1>
+        <p>Prevenção e detecção precoce do cancro da próstata, para os colaboradores da ConsultIT e da Zentrix.</p>
+      </div>
+      <nav class="tiles" aria-label="Conteúdos">
+        <a class="tile v" href="#video" id="tile-video">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></span>
+          <span class="tx"><span class="k">2 minutos e meio</span><h2>Ver o vídeo</h2><p>Os números, os sinais de alerta, o rastreio e a prevenção.</p>
+            <span class="go">Reproduzir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
+        </a>
+        <a class="tile q" href="#quiz" id="tile-quiz">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 9a3 3 0 1 1 4.1 2.8c-.8.3-1.3 1-1.3 1.9V14"/><path d="M12 18h.01"/></svg></span>
+          <span class="tx"><span class="k">10 perguntas</span><h2>Fazer o quiz</h2><p>Mito ou Verdade? Teste o que sabe sobre a saúde do homem.</p>
+            <span class="go">Começar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
+        </a>
+      </nav>
+      <div class="bottom">
+        <p class="fine">Fontes: OMS, IARC e American Cancer Society. Conteúdo informativo; não substitui o aconselhamento de um profissional de saúde.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== VÍDEO ========== -->
+<section class="view" id="v-video" aria-label="Vídeo">
+  <div class="inner">
+    <div class="top">
+      <a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a>
+      <img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix">
+    </div>
+    <div class="player"><video id="video" controls playsinline preload="auto" poster="poster.jpg" src="video.mp4">O seu navegador não consegue reproduzir este vídeo.</video></div>
+  </div>
+</section>
+
+<!-- ========== QUIZ (telemóvel) ========== -->
+<section class="view" id="v-quiz" aria-label="Quiz">
+  <div class="inner">
+    <div class="top">
+      <a class="pill" href="#inicio" id="quiz-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a>
+      <img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix">
+    </div>
+    <main class="stage" id="stage" aria-live="polite"></main>
+  </div>
+</section>
+
+<!-- ========== RANKING (projector) ========== -->
+<section class="view" id="v-ranking" aria-label="Ranking">
+  <div class="inner">
+    <div class="top">
+      <div style="display:flex;align-items:center;gap:16px;min-width:0"><a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a><span class="eyebrow">Mito ou Verdade? · Ao vivo</span></div>
+      <img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix">
+    </div>
+    <div class="rank">
+      <aside class="join">
+        <div class="qr-card" id="qr-sala"></div>
+        <h2>Aponte a câmara do telemóvel.</h2>
+        <p>Escreva o seu nome e responda às 10 perguntas. O ranking aparece aqui ao vivo.</p>
+        <div class="code">Sala <b id="sala-code">—</b></div>
+        <div class="stats"><span class="chip" id="st-total">0 participantes</span><span class="chip" id="st-done">0 terminaram</span></div>
+      </aside>
+      <section class="board">
+        <div class="board-h"><h1 class="grad">Ranking</h1><span class="small" id="st-msg"></span></div>
+        <div class="rows" id="rows"></div>
+        <div class="ctrl">
+          <button class="btn ghost" type="button" id="b-nova">Nova sessão</button>
+          <button class="btn ghost" type="button" id="b-fs">Ecrã inteiro</button>
+          <button class="btn" type="button" id="b-podio">Ver resultados</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ========== REVISÃO ========== -->
+<section class="view" id="v-revisao" aria-label="Perguntas mais falhadas">
+  <div class="inner">
+    <div class="top">
+      <a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a>
+      <img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix">
+    </div>
+    <div class="rev">
+      <div class="rev-h">
+        <div><span class="eyebrow">Vamos conversar</span><h1 class="grad" style="margin-top:8px">As perguntas mais falhadas.</h1></div>
+        <button class="btn" type="button" id="b-rev-podio">Mostrar vencedores</button>
+      </div>
+      <div class="rev-list" id="rev-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PÓDIO ========== -->
+<section class="view" id="v-podio" aria-label="Vencedores">
+  <div class="inner">
+    <div class="top">
+      <div style="display:flex;gap:10px"><a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a><button class="pill" type="button" id="b-voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Ranking</button></div>
+      <img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix">
+    </div>
+    <div class="podium-wrap">
+      <div><span class="eyebrow">Mito ou Verdade?</span><h1 class="big t1 grad" style="margin-top:8px">Parabéns!</h1></div>
+      <div class="podium">
+        <div class="step s2"><span class="who" id="w2">—</span><span class="pts" id="p2"></span><div class="block">2</div></div>
+        <div class="step s1"><span class="who" id="w1">—</span><span class="pts" id="p1"></span><div class="block">1</div></div>
+        <div class="step s3"><span class="who" id="w3">—</span><span class="pts" id="p3"></span><div class="block">3</div></div>
+      </div>
+      <p class="lanche">Segue-se agora o lanche de confraternização.</p>
+      <p class="small">Obrigado a todos pela participação. Prevenir é o melhor código. Faça o seu check-up.</p>
+      <p class="sat" id="sat"></p>
+    </div>
+  </div>
+</section>
+
+<script src="../assets/qrcode.js"></script>
+<script type="module">
+import { sortear, N_PERGUNTAS, pontosPara, BANCO } from "./questoes.js";
+import { firebaseConfig, configurado } from "./firebase-config.js";
+
+const BASE = location.origin + location.pathname.replace(/index\.html$/, "");
+const $ = (s) => document.querySelector(s);
+const L = ["A", "B", "C", "D"];
+const params = new URLSearchParams(location.search);
+let salaGuardada = "";
+try { salaGuardada = sessionStorage.getItem("na26-sala-jogo") || ""; } catch (e) {}
+const SALA = ((params.get("sala") || salaGuardada || "")).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+if (SALA) { try { sessionStorage.setItem("na26-sala-jogo", SALA); } catch (e) {} }
+// O endereço fica sempre limpo na barra do navegador (sem #inicio, #ranking ou ?sala=…)
+if (location.hash || location.search) history.replaceState(null, "", location.pathname);
+let vista = "";
+
+/* ---------- QR ---------- */
+function qrSVG(text) {
+  const q = qrcode(0, "M"); q.addData(text); q.make();
+  const n = q.getModuleCount(); let d = "";
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" role="img" aria-label="Código QR"><path fill="#000" d="${d}"/></svg>`;
+}
+
+/* ---------- Firebase (carregado só quando é preciso) ---------- */
+let fb = null;
+async function firebase() {
+  if (fb) return fb;
+  if (!configurado) throw new Error("config");
+  const V = "10.12.2";
+  const [{ initializeApp }, auth, fs] = await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+  ]);
+  const app = initializeApp(firebaseConfig);
+  const a = auth.getAuth(app);
+  const cred = await auth.signInAnonymously(a);
+  fb = { uid: cred.user.uid, db: fs.getFirestore(app), fs };
+  return fb;
+}
+
+/* ---------- Navegação entre vistas ---------- */
+const views = ["inicio", "video", "quiz", "ranking", "revisao", "podio"];
+function route() {
+  let h = vista || (SALA ? "quiz" : "inicio");
+  if (!views.includes(h)) h = "inicio";
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === "v-" + h));
+  if (h !== "video") { const v = $("#video"); if (v && !v.paused) v.pause(); }
+  if (h === "quiz") quizEntrar();
+  if (h === "ranking") rankingEntrar();
+}
+function ir(v) { vista = v; route(); }
+// Ligações internas (href="#…") mudam de vista sem alterar o endereço
+document.addEventListener("click", (ev) => {
+  const a = ev.target.closest && ev.target.closest('a[href^="#"]');
+  if (!a || ev.defaultPrevented) return;
+  ev.preventDefault(); ir(a.getAttribute("href").slice(1));
+});
+
+/* ---------- Ecrã inteiro da página toda: pedido no primeiro toque e mantido entre vistas ---------- */
+const video = $("#video");
+const podeFS = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+function emFS() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function paginaEmEcraInteiro() {
+  if (emFS() || !podeFS) return;
+  const el = document.documentElement;
+  try {
+    if (el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  } catch (e) {}
+}
+const ecraPequeno = () => matchMedia("(pointer: coarse)").matches && Math.min(innerWidth, innerHeight) < 600;
+
+/* ---------- Vídeo: um toque em «Ver o vídeo» reproduz logo em ecrã inteiro ---------- */
+function ecraInteiro(el) {
+  try {
+    if (el.requestFullscreen) return el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+    if (video.webkitEnterFullscreen) return video.webkitEnterFullscreen();   // iPhone (Safari)
+  } catch (e) {}
+}
+function sairEcraInteiro() {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+  } catch (e) {}
+}
+$("#tile-video").addEventListener("click", (ev) => {
+  ev.preventDefault();
+  ir("video");
+  // Tudo dentro do mesmo toque, para o navegador autorizar o ecrã inteiro e o som
+  if (podeFS) paginaEmEcraInteiro(); else ecraInteiro(video);   // iPhone: leitor de ecrã inteiro do Safari
+  video.currentTime = video.ended ? 0 : video.currentTime;
+  const p = video.play();
+  if (p && p.catch) p.catch(() => { video.muted = true; video.play().catch(() => {}); });
+});
+// Ao terminar o vídeo, sai do ecrã inteiro e volta ao início
+// Ao terminar, volta sozinho ao início (mantém o ecrã inteiro para o passo seguinte)
+video.addEventListener("ended", () => { setTimeout(() => { ir("inicio"); }, 600); });
+// A barra de cima do vídeo esconde-se ao fim de 2,5 s sem mexer no rato
+let idleT = 0;
+const acordar = () => { $("#v-video").classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => $("#v-video").classList.add("idle"), 2500); };
+["mousemove", "touchstart", "keydown"].forEach(e => $("#v-video").addEventListener(e, acordar, { passive: true }));
+video.addEventListener("play", acordar);
+// Se a pessoa sair do ecrã inteiro (tecla Esc), o vídeo pausa e fica na página do vídeo
+const aoSairFS = () => { if (!emFS() && vista === "video" && !video.ended) video.pause(); };
+document.addEventListener("fullscreenchange", aoSairFS);
+document.addEventListener("webkitfullscreenchange", aoSairFS);
+video.addEventListener("webkitendfullscreen", () => { if (!video.ended) video.pause(); });
+$("#b-voltar").addEventListener("click", () => { R.auto = false; ir("ranking"); });
+
+// «Fazer o quiz»: no telemóvel abre o quiz individual; no computador/projector abre o QR da sala em grande
+$("#tile-quiz").addEventListener("click", (ev) => {
+  if (ecraPequeno()) return;                       // telemóvel: segue para #quiz normalmente
+  ev.preventDefault();
+  paginaEmEcraInteiro();
+  R.sala = novaSala(); try { localStorage.setItem("na26-sala", R.sala); } catch (e) {}
+  R.auto = true;
+  if (vista === "ranking") ligarSala(); else ir("ranking");
+});
+// Qualquer toque nas vistas do apresentador mantém o ecrã inteiro
+["v-inicio", "v-ranking", "v-revisao", "v-podio"].forEach(id => $("#" + id).addEventListener("click", () => { if (!ecraPequeno()) paginaEmEcraInteiro(); }));
+
+/* =====================================================
+   QUIZ NO TELEMÓVEL
+   ===================================================== */
+const stage = $("#stage");
+const esc = (t) => { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; };
+let Q = { i: 0, pontos: 0, certas: 0, nome: "", ref: null, t0: 0, iniciado: false };
+if (SALA) $("#quiz-back").hidden = true;
+
+function show(html, focus) {
+  stage.style.animation = "none"; void stage.offsetWidth; stage.style.animation = "rise .45s cubic-bezier(.2,.8,.2,1) both";
+  stage.innerHTML = html;
+  const f = focus && stage.querySelector(focus); if (f) f.focus({ preventScroll: true });
+}
+
+function quizEntrar() {
+  if (Q.iniciado) return;
+  let nomeGuardado = "";
+  try { nomeGuardado = localStorage.getItem("na26-nome") || ""; } catch (e) {}
+  show(`
+    <img class="ribbon" src="laco-azul.png" alt="" aria-hidden="true">
+    <h1 class="big t1 grad">Mito ou Verdade?</h1>
+    <p class="lead">${SALA ? "10 perguntas. Quanto mais depressa acertar, mais pontos ganha." : "10 perguntas sobre a saúde do homem. Descubra o que diz a ciência."}</p>
+    <form class="field" id="f-nome" novalidate>
+      <label for="nome">${SALA ? "O seu primeiro nome" : "O seu nome"}</label>
+      <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="Ex.: João" value="${esc(nomeGuardado)}">
+      ${SALA ? `<span class="privacy">O nome aparece só no ranking desta sessão e é apagado automaticamente ao fim de 30 dias. Pode usar só o primeiro nome ou uma alcunha.</span>` : ""}
+    </form>
+    <button class="btn" type="submit" form="f-nome" id="b-comecar">Começar</button>
+    <p class="small" id="msg"></p>`, "#nome");
+  $("#f-nome").addEventListener("submit", comecar);
+}
+
+async function comecar(ev) {
+  ev.preventDefault();
+  const nome = $("#nome").value.trim().replace(/\s+/g, " ").slice(0, 30);
+  if (!nome) { $("#msg").textContent = "Escreva o seu nome para começar."; $("#nome").focus(); return; }
+  try { localStorage.setItem("na26-nome", nome); } catch (e) {}
+  Q.nome = nome; Q.iniciado = true;
+  Q.lista = sortear(Math.random());   // modo individual: sorteio novo a cada jogo
+  if (SALA) {
+    $("#b-comecar").disabled = true; $("#msg").textContent = "A ligar…";
+    try {
+      const { uid, db, fs } = await firebase();
+      Q.ref = fs.doc(db, "salas", SALA, "jogadores", uid);
+      Q.lista = sortear(uid + ":" + SALA);   // perguntas próprias deste telemóvel (iguais se recarregar)
+      const snap = await fs.getDoc(Q.ref);
+      if (snap.exists()) {               // retomar onde ficou (ex.: recarregou a página)
+        const d = snap.data();
+        Q.i = d.respondidas || 0; Q.pontos = d.pontos || 0; Q.certas = d.certas || 0;
+        if (d.nome !== nome) await fs.updateDoc(Q.ref, { nome, actualizado: fs.serverTimestamp() });
+      } else {
+        await fs.setDoc(Q.ref, { nome, pontos: 0, certas: 0, respondidas: 0, terminado: false, inicio: fs.serverTimestamp(), actualizado: fs.serverTimestamp() });
+        // data de expiração (apagamento automático ao fim de 30 dias — política TTL do Firestore)
+        fs.updateDoc(Q.ref, { expira: fs.Timestamp.fromMillis(Date.now() + 30 * 864e5) }).catch(() => {});
+      }
+    } catch (e) {
+      Q.iniciado = false; $("#b-comecar").disabled = false;
+      $("#msg").textContent = e.message === "config"
+        ? "O ranking ainda não está configurado. Peça ajuda à organização."
+        : "Não foi possível ligar. Verifique a internet e tente outra vez.";
+      return;
+    }
+  }
+  Q.i >= N_PERGUNTAS ? fim() : pergunta();
+}
+
+let timerRAF = 0;
+function pergunta() {
+  const q = Q.lista[Q.i];
+  const head = `<div class="qhead"><span>${Q.i + 1} / ${N_PERGUNTAS}</span><span>${Q.pontos.toLocaleString("pt-PT")} pontos</span></div>`;
+  const timer = SALA ? `<div class="timer" aria-hidden="true"><i id="tbar"></i></div>` : "";
+  if (q.t === "tf") {
+    show(`${head}${timer}<span class="eyebrow">Mito ou Verdade?</span><h1 class="big q">«${esc(q.s)}»</h1>
+      <div class="choices"><button class="choice yes" type="button" data-v="1">Verdade</button><button class="choice no" type="button" data-v="0">Mito</button></div>`, ".choice.yes");
+    stage.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => responder(b.dataset.v === "1")));
+  } else {
+    show(`${head}${timer}<span class="eyebrow">Escolha a resposta</span><h1 class="big q">${esc(q.s)}</h1>
+      <div class="opts">${q.o.map((o, k) => `<button class="opt" type="button" data-k="${k}"><span class="l">${L[k]}</span><span>${esc(o)}</span></button>`).join("")}</div>`, ".opt");
+    stage.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => responder(+b.dataset.k)));
+  }
+  Q.t0 = performance.now();
+  if (SALA) {
+    cancelAnimationFrame(timerRAF);
+    const bar = $("#tbar");
+    const tick = () => { const s = (performance.now() - Q.t0) / 1000; bar.style.transform = `scaleX(${Math.max(0, 1 - s / 20)})`; if (s < 20) timerRAF = requestAnimationFrame(tick); };
+    tick();
+  }
+}
+
+async function responder(v) {
+  cancelAnimationFrame(timerRAF);
+  stage.querySelectorAll("button").forEach(b => b.disabled = true);
+  const q = Q.lista[Q.i];
+  const certa = v === q.a;
+  const pts = SALA ? pontosPara(certa, (performance.now() - Q.t0) / 1000) : 0;
+  Q.pontos += pts; if (certa) Q.certas++; Q.i++;
+  const ultima = Q.i >= N_PERGUNTAS;
+  if (Q.ref) {
+    const { fs } = fb;
+    const dados = { pontos: Q.pontos, certas: Q.certas, respondidas: Q.i, terminado: ultima, actualizado: fs.serverTimestamp() };
+    if (ultima) dados.fim = fs.serverTimestamp();
+    fs.updateDoc(Q.ref, dados).catch(() => {});
+    if (!certa) fs.updateDoc(Q.ref, { falhas: fs.arrayUnion(q.id) }).catch(() => {});   // para a revisão das mais falhadas
+  }
+  const verdict = q.t === "tf" ? (q.a ? "Verdade." : "Mito.") : `${L[q.a]}. ${esc(q.o[q.a])}`;
+  show(`
+    <span class="tag ${certa ? "ok" : "ko"}">${certa ? (SALA ? `Acertou! +${pts} pontos` : "Acertou!") : "Não é bem assim."}</span>
+    <h1 class="big ${q.t === "tf" ? "v" : "vm"} grad">${verdict}</h1>
+    <p class="expl">${esc(q.e)}</p>
+    <p class="small">Fonte: ${esc(q.src)}</p>
+    <button class="btn" type="button" id="b-seg">${ultima ? "Ver resultado" : "Pergunta seguinte"}</button>`, "#b-seg");
+  $("#b-seg").addEventListener("click", () => ultima ? fim() : pergunta());
+}
+
+function fim() {
+  show(`
+    <img class="ribbon" src="laco-azul.png" alt="" aria-hidden="true">
+    <span class="eyebrow">${esc(Q.nome)}</span>
+    <h1 class="big t1 grad">${Q.certas} / ${N_PERGUNTAS}</h1>
+    ${SALA ? `<p class="lead"><b style="color:var(--fg)">${Q.pontos.toLocaleString("pt-PT")} pontos.</b> Olhe para o ecrã para ver o ranking.</p>
+              <div class="rate" id="rate"><p class="small" style="color:var(--muted)">Esta sessão foi útil para si?</p>
+                <div class="stars">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" aria-label="${n} de 5">${n}</button>`).join("")}</div>
+                <div class="rate-l"><span>Nada útil</span><span>Muito útil</span></div></div>`
+           : `<p class="lead">Agora já sabe mais. Partilhe estas respostas com os homens da sua família e com os colegas.</p>
+              <button class="btn ghost" type="button" id="b-again">Jogar de novo</button>`}
+    <p class="small">Prevenir é o melhor código. Faça o seu check-up.</p>`);
+  stage.querySelectorAll(".stars button").forEach(b => b.addEventListener("click", () => {
+    const n = +b.dataset.n;
+    if (Q.ref && fb) fb.fs.updateDoc(Q.ref, { satisfacao: n }).catch(() => {});
+    $("#rate").innerHTML = `<p class="small" style="color:var(--fg)">Obrigado pela sua opinião.</p>`;
+  }));
+  const again = $("#b-again");
+  if (again) again.addEventListener("click", () => { Q = { i: 0, pontos: 0, certas: 0, nome: Q.nome, ref: null, t0: 0, iniciado: false }; quizEntrar(); });
+}
+
+/* =====================================================
+   RANKING (ecrã do apresentador)
+   ===================================================== */
+let R = { sala: "", unsub: null, jogadores: [], auto: true, conta: 0, contaT: 0 };
+const ESPERA_PODIO = 15;   // segundos depois de todas terminarem
+function novaSala() {
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = "";
+  const r = crypto.getRandomValues(new Uint8Array(5)); r.forEach(x => s += A[x % A.length]);
+  return s;
+}
+async function rankingEntrar() {
+  if (!R.sala) {
+    try { R.sala = localStorage.getItem("na26-sala") || ""; } catch (e) {}
+    if (!R.sala) { R.sala = novaSala(); try { localStorage.setItem("na26-sala", R.sala); } catch (e) {} }
+  }
+  if (R.unsub && R.ligadaA === R.sala) { desenhar(); return; }   // já ligada: não recomeça
+  ligarSala();
+}
+async function ligarSala() {
+  R.ligadaA = R.sala;
+  $("#sala-code").textContent = R.sala;
+  $("#qr-sala").innerHTML = qrSVG(`${BASE}?sala=${R.sala}`);
+  if (R.unsub) { R.unsub(); R.unsub = null; }
+  R.jogadores = []; R.auto = true; pararConta(); desenhar();
+  try {
+    const { db, fs } = await firebase();
+    R.unsub = fs.onSnapshot(fs.collection(db, "salas", R.sala, "jogadores"), (snap) => {
+      R.jogadores = snap.docs.map(d => d.data());
+      desenhar();
+    }, () => { $("#st-msg").textContent = "Ligação interrompida. A tentar de novo…"; });
+  } catch (e) {
+    $("#rows").innerHTML = `<div class="empty">${e.message === "config"
+      ? "Falta configurar o Firebase (ficheiro firebase-config.js)."
+      : "Sem ligação ao servidor. Verifique a internet."}</div>`;
+  }
+}
+function ordenar(a) {
+  return a.slice().sort((x, y) => (y.pontos - x.pontos) || (y.certas - x.certas) ||
+    ((x.fim?.toMillis?.() ?? Infinity) - (y.fim?.toMillis?.() ?? Infinity)));
+}
+function desenhar() {
+  const list = ordenar(R.jogadores);
+  const total = list.length, done = list.filter(j => j.terminado).length;
+  $("#st-total").textContent = `${total} ${total === 1 ? "participante" : "participantes"}`;
+  const sd = $("#st-done"); sd.textContent = `${done} ${done === 1 ? "terminou" : "terminaram"}`;
+  sd.classList.toggle("hl", total > 0 && done === total);
+  $("#v-ranking").classList.toggle("lobby", total === 0);
+  const todas = total > 0 && done === total;
+  if (todas && R.auto) { if (!R.contaT) iniciarConta(); }
+  else { pararConta(); $("#st-msg").textContent = todas ? "Todos terminaram!" : ""; }
+  const rows = $("#rows");
+  if (!total) { rows.innerHTML = `<div class="empty">À espera dos primeiros participantes…</div>`; return; }
+  // quantas linhas cabem no ecrã (sem barras de deslocamento)
+  const rh = Math.max(40, Math.min(64, Math.floor(rows.clientHeight / 9) - 8));
+  rows.style.setProperty("--rh", rh + "px");
+  const cabem = Math.max(1, Math.floor((rows.clientHeight + 8) / (rh + 8)));
+  const limite = Math.min(cabem, 10);                    // só os 10 primeiros, para ninguém ficar exposto
+  const mostrar = list.length > limite ? list.slice(0, list.length > cabem ? limite - 1 : limite) : list;
+  rows.innerHTML = "";
+  mostrar.forEach((j, k) => {
+    const r = document.createElement("div"); r.className = "row" + (j.terminado ? " done" : "");
+    const p = document.createElement("span"); p.className = "p"; p.textContent = k + 1;
+    const n = document.createElement("span"); n.className = "n"; n.textContent = j.nome || "—";
+    const b = document.createElement("span"); b.className = "bar"; const i = document.createElement("i"); i.style.width = `${(j.respondidas || 0) / N_PERGUNTAS * 100}%`; b.appendChild(i);
+    const s = document.createElement("span"); s.className = "s"; s.textContent = (j.pontos || 0).toLocaleString("pt-PT");
+    r.append(p, n, b, s); rows.appendChild(r);
+  });
+  if (list.length > mostrar.length) {
+    const m = document.createElement("div"); m.className = "more"; m.textContent = `+ ${list.length - mostrar.length} participantes`;
+    rows.appendChild(m);
+  }
+}
+addEventListener("resize", () => { if (vista === "ranking") desenhar(); });
+
+function iniciarConta() {
+  R.conta = ESPERA_PODIO;
+  const tick = () => {
+    const m = $("#st-msg"); m.innerHTML = "";
+    const span = document.createElement("span"); span.className = "auto";
+    span.textContent = `Todos terminaram! Resultados em ${R.conta} s`;
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "Esperar";
+    b.addEventListener("click", () => { R.auto = false; pararConta(); $("#st-msg").textContent = "Todos terminaram!"; });
+    span.appendChild(b); m.appendChild(span);
+    if (R.conta-- <= 0) { pararConta(); mostrarRevisao(); return; }
+    R.contaT = setTimeout(tick, 1000);
+  };
+  tick();
+}
+function pararConta() { clearTimeout(R.contaT); R.contaT = 0; }
+function maisFalhadas() {
+  const cont = new Map();
+  R.jogadores.forEach(j => (Array.isArray(j.falhas) ? j.falhas : []).forEach(id => cont.set(id, (cont.get(id) || 0) + 1)));
+  return [...cont.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
+    .map(([id, n]) => ({ q: BANCO[id], n })).filter(x => x.q);
+}
+function mostrarRevisao() {
+  const top = maisFalhadas();
+  if (!top.length) { mostrarPodio(); return; }          // sem dados de falhas: segue para o pódio
+  const box = $("#rev-list"); box.innerHTML = "";
+  box.style.gridTemplateRows = `repeat(${top.length}, minmax(0, 1fr))`;
+  const total = R.jogadores.length;
+  top.forEach((x, k) => {
+    const q = x.q, certa = q.t === "tf" ? (q.a ? "Verdade" : "Mito") : q.o[q.a];
+    const c = document.createElement("article"); c.className = "rev-card";
+    const n = document.createElement("span"); n.className = "rev-n"; n.textContent = k + 1;
+    const t = document.createElement("div");
+    const h = document.createElement("p"); h.className = "rev-q"; h.textContent = q.t === "tf" ? `«${q.s}»` : q.s;
+    const a = document.createElement("p"); a.className = "rev-a";
+    const b = document.createElement("b"); b.textContent = certa + ". "; a.append(b, document.createTextNode(q.e));
+    t.append(h, a);
+    const pc = document.createElement("div"); pc.className = "rev-pct";
+    const pb = document.createElement("b"); pb.textContent = x.n; pc.append(pb, document.createTextNode(x.n === 1 ? "pessoa errou" : "pessoas erraram"));
+    c.append(n, t, pc); box.appendChild(c);
+  });
+  ir("revisao");
+}
+$("#b-rev-podio").addEventListener("click", () => mostrarPodio());
+function mostrarPodio() {
+  const top = ordenar(R.jogadores);
+  [1, 2, 3].forEach(k => {
+    const j = top[k - 1];
+    $("#w" + k).textContent = j ? j.nome : "—";
+    $("#p" + k).textContent = j ? `${j.certas}/${N_PERGUNTAS} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
+  });
+  const notas = R.jogadores.map(j => j.satisfacao).filter(n => Number.isInteger(n) && n >= 1 && n <= 5);
+  $("#sat").textContent = notas.length
+    ? `Utilidade da sessão: ${(notas.reduce((a, b) => a + b, 0) / notas.length).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} / 5 (${notas.length} ${notas.length === 1 ? "resposta" : "respostas"})`
+    : "";
+  ir("podio");
+}
+$("#b-podio").addEventListener("click", () => { pararConta(); mostrarRevisao(); });
+$("#b-nova").addEventListener("click", () => {
+  const b = $("#b-nova");
+  if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmar nova sessão"; setTimeout(() => { b.dataset.confirm = ""; b.textContent = "Nova sessão"; }, 4000); return; }
+  b.dataset.confirm = ""; b.textContent = "Nova sessão";
+  R.sala = novaSala(); try { localStorage.setItem("na26-sala", R.sala); } catch (e) {}
+  ligarSala();
+});
+$("#b-fs").addEventListener("click", () => {
+  try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {}
+});
+
+route();
+</script>
+</body>
+</html>
