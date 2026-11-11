@@ -265,7 +265,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
       <a class="pill" href="#inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Início</a>
       <img class="selo" src="../assets/selo.png" alt="ConsultIT e Zentrix">
     </div>
-    <div class="player"><video id="video" controls playsinline preload="auto" poster="poster.jpg" src="video.mp4">O seu navegador não consegue reproduzir este vídeo.</video></div>
+    <div class="player"><video id="video" controls playsinline preload="none" poster="poster.jpg" src="video.mp4">O seu navegador não consegue reproduzir este vídeo.</video></div>
   </div>
 </section>
 
@@ -348,7 +348,7 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
 
 <script src="../assets/qrcode.js"></script>
 <script type="module">
-import { sortear, N_PERGUNTAS, pontosPara, BANCO } from "./questoes.js";
+import { sortear, blocoSala, montar, N_PERGUNTAS, pontosPara, BANCO } from "./questoes.js";
 
 /* Perguntas já vistas neste telemóvel, por jogo: um novo jogo dá prioridade às que ainda não saíram,
    e recarregar a página no mesmo jogo mantém exactamente as mesmas perguntas. */
@@ -422,6 +422,8 @@ document.addEventListener("click", (ev) => {
 
 /* ---------- Ecrã inteiro da página toda: pedido no primeiro toque e mantido entre vistas ---------- */
 const video = $("#video");
+// Só o portátil do apresentador pré-carrega o vídeo; os telemóveis da sala não gastam rede com ele
+if (!SALA && !(matchMedia("(pointer: coarse)").matches && Math.min(innerWidth, innerHeight) < 600)) video.preload = "auto";
 const podeFS = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 function emFS() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
 function paginaEmEcraInteiro() {
@@ -512,9 +514,9 @@ function quizEntrar() {
     <h1 class="big t1 grad">Mito ou Verdade?</h1>
     <p class="lead">${SALA ? "12 perguntas, diferentes para cada pessoa. Quanto mais depressa acertar, mais pontos ganha." : "12 perguntas sobre a saúde do homem. Descubra o que diz a ciência."}</p>
     <form class="field" id="f-nome" novalidate>
-      <label for="nome">${SALA ? "O seu primeiro nome" : "O seu nome"}</label>
-      <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="Ex.: João" value="${esc(nomeGuardado)}">
-      ${SALA ? `<span class="privacy">O nome aparece só no ranking desta sessão e é apagado automaticamente ao fim de 30 dias, em conformidade com a Lei n.º 22/11, de 17 de Junho (Lei da Protecção de Dados Pessoais). Pode usar só o primeiro nome ou uma alcunha. As respostas ao inquérito final são anónimas.</span>` : ""}
+      <label for="nome">${SALA ? "Primeiro nome e inicial do apelido" : "O seu nome"}</label>
+      <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="${SALA ? "Ex.: João M." : "Ex.: João"}" value="${esc(nomeGuardado)}">
+      ${SALA ? `<span class="privacy">O nome aparece só no ranking desta sessão e é apagado automaticamente ao fim de 30 dias, em conformidade com a Lei n.º 22/11, de 17 de Junho (Lei da Protecção de Dados Pessoais). Use o primeiro nome e a inicial do apelido (por exemplo, João M.), para não haver nomes repetidos, ou uma alcunha. As respostas ao inquérito final são anónimas.</span>` : ""}
     </form>
     <button class="btn" type="submit" form="f-nome" id="b-comecar">Começar</button>
     <p class="small" id="msg"></p>`, "#nome");
@@ -527,13 +529,12 @@ async function comecar(ev) {
   if (!nome) { $("#msg").textContent = "Escreva o seu nome para começar."; $("#nome").focus(); return; }
   try { localStorage.setItem("na26-nome", nome); } catch (e) {}
   Q.nome = nome; Q.iniciado = true;
-  Q.lista = sorteio("solo-" + Date.now(), Math.random());   // modo individual: sorteio novo a cada jogo, sem repetir perguntas já vistas
+  if (!SALA) Q.lista = sorteio("solo-" + Date.now(), Math.random());   // modo individual: sorteio novo a cada jogo, sem repetir perguntas já vistas
   if (SALA) {
     $("#b-comecar").disabled = true; $("#msg").textContent = "A ligar…";
     try {
       const { uid, db, fs } = await firebase();
       Q.ref = fs.doc(db, "salas", SALA, "jogadores", uid);
-      Q.lista = sorteio("sala-" + SALA, uid + ":" + SALA);   // perguntas próprias deste telemóvel (iguais se recarregar)
       const snap = await fs.getDoc(Q.ref);
       if (snap.exists()) {               // retomar onde ficou (ex.: recarregou a página)
         const d = snap.data();
@@ -543,6 +544,17 @@ async function comecar(ev) {
         await fs.setDoc(Q.ref, { nome, pontos: 0, certas: 0, respondidas: 0, terminado: false, inicio: fs.serverTimestamp(), actualizado: fs.serverTimestamp() });
         // data de expiração (apagamento automático ao fim de 30 dias — política TTL do Firestore)
         fs.updateDoc(Q.ref, { expira: fs.Timestamp.fromMillis(Date.now() + 30 * 864e5) }).catch(() => {});
+      }
+      // Perguntas deste telemóvel: bloco próprio conforme a ordem de entrada na sala (sempre o mesmo se recarregar)
+      try {
+        const todos = await fs.getDocs(fs.collection(db, "salas", SALA, "jogadores"));
+        const ordem = todos.docs.map(d => ({ id: d.id, t: d.data().inicio?.toMillis?.() ?? Infinity }))
+          .sort((x, y) => (x.t - y.t) || (x.id < y.id ? -1 : 1));
+        const k = Math.max(0, ordem.findIndex(o => o.id === uid));
+        Q.lista = montar(blocoSala(SALA, k), uid + ":" + SALA);
+        try { const v = JSON.parse(localStorage.getItem("na26-vistas") || "{}") || {}; v["sala-" + SALA] = Q.lista.map(q => q.id); localStorage.setItem("na26-vistas", JSON.stringify(v)); } catch (e) {}
+      } catch (e) {
+        Q.lista = sorteio("sala-" + SALA, uid + ":" + SALA);   // sem leitura da sala: sorteio próprio deste telemóvel
       }
     } catch (e) {
       Q.iniciado = false; $("#b-comecar").disabled = false;

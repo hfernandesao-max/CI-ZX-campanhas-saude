@@ -201,6 +201,26 @@ export function sortear(semente, evitar = []) {
   return baralhar(tf.concat(mc), rnd);
 }
 
+// Distribuição equilibrada numa sala: o k-ésimo participante (por ordem de entrada) recebe um bloco próprio.
+// Cada grupo de 5 participantes seguidos recebe perguntas totalmente diferentes entre si; entre grupos,
+// o banco é baralhado de novo. Assim, as 61 perguntas são usadas por igual e nenhum par tem as mesmas 12.
+export function blocoSala(sala, k) {
+  const g = Math.floor(k / 5), pos = k % 5, n = N_PERGUNTAS / 2;
+  const tf = baralhar(BANCO.filter(q => q.t === "tf"), gerador(`${sala}:tf:${g}`)).slice(pos * n, pos * n + n);
+  const mc = baralhar(BANCO.filter(q => q.t === "mc"), gerador(`${sala}:mc:${g}`)).slice(pos * n, pos * n + n);
+  return tf.concat(mc).map(q => q.id);
+}
+// Monta a lista a partir dos ids: ordem das perguntas e das opções baralhada (sempre igual para a mesma semente)
+export function montar(ids, semente) {
+  const rnd = gerador(String(semente));
+  const lista = ids.map(id => BANCO[id]).filter(Boolean).map(q => {
+    if (q.t !== "mc") return q;
+    const ordem = baralhar(q.o.map((_, k) => k), rnd);
+    return { ...q, o: ordem.map(k => q.o[k]), a: ordem.indexOf(q.a) };
+  });
+  return baralhar(lista, rnd);
+}
+
 // Pontuação ao estilo dos quizzes ao vivo: resposta certa vale entre 500 e 1000 pontos,
 // conforme a rapidez (perde-se 25 pontos por segundo, até 20 segundos).
 export function pontosPara(certa, segundos) {
