@@ -167,6 +167,15 @@ export const BANCO = [
 
 BANCO.forEach((q, i) => { q.id = i; });   // identificador estável de cada pergunta (para a revisão)
 
+// Temas: perguntas sobre o mesmo assunto nunca saem à mesma pessoa (para não parecerem repetidas)
+const TEMAS = [
+  [0, 1, 51], [2, 44], [3, 33], [4, 34, 35, 57, 43], [5, 38, 45], [20, 25, 54], [6, 59], [7, 27, 58],
+  [8, 24], [15, 50], [9, 19, 52], [10, 18, 36, 42], [11, 31, 48], [40, 47], [17, 22, 55], [13, 39, 46],
+  [28, 53], [16, 41], [29, 60], [37, 56], [32, 49]
+];
+BANCO.forEach(q => { q.tema = "q" + q.id; });
+TEMAS.forEach((g, k) => g.forEach(id => { BANCO[id].tema = "t" + k; }));
+
 // ---------- Sorteio ----------
 // Gerador pseudo-aleatório com semente: o mesmo telemóvel (mesma semente) recebe sempre as mesmas perguntas,
 // por isso, se recarregar a página, continua exactamente onde estava.
@@ -186,12 +195,18 @@ function baralhar(lista, rnd) {
 
 // evitar: ids das perguntas que este telemóvel já viu noutros jogos — ficam para o fim da fila,
 // por isso só voltam a sair quando o telemóvel já tiver visto todas as outras.
+// Escolhe n perguntas da lista (por ordem), sem repetir temas já usados por esta pessoa
+function semTemasRepetidos(lista, n, usados) {
+  const out = [];
+  for (const q of lista) { if (out.length >= n) break; if (!usados.has(q.tema)) { out.push(q); usados.add(q.tema); } }
+  return out;
+}
 export function sortear(semente, evitar = []) {
   const rnd = gerador(String(semente || Math.random()));
-  const vistas = new Set(evitar);
+  const vistas = new Set(evitar), usados = new Set();
   const escolher = (tipo) => {
     const todas = baralhar(BANCO.filter(q => q.t === tipo), rnd);
-    return todas.filter(q => !vistas.has(q.id)).concat(todas.filter(q => vistas.has(q.id))).slice(0, N_PERGUNTAS / 2);
+    return semTemasRepetidos(todas.filter(q => !vistas.has(q.id)).concat(todas.filter(q => vistas.has(q.id))), N_PERGUNTAS / 2, usados);
   };
   const tf = escolher("tf");
   const mc = escolher("mc").map(q => {
@@ -206,9 +221,19 @@ export function sortear(semente, evitar = []) {
 // o banco é baralhado de novo. Assim, as 61 perguntas são usadas por igual e nenhum par tem as mesmas 12.
 export function blocoSala(sala, k) {
   const g = Math.floor(k / 5), pos = k % 5, n = N_PERGUNTAS / 2;
-  const tf = baralhar(BANCO.filter(q => q.t === "tf"), gerador(`${sala}:tf:${g}`)).slice(pos * n, pos * n + n);
-  const mc = baralhar(BANCO.filter(q => q.t === "mc"), gerador(`${sala}:mc:${g}`)).slice(pos * n, pos * n + n);
-  return tf.concat(mc).map(q => q.id);
+  // Reparte o banco pelos 5 participantes do grupo: cada pergunta vai para um só deles e ninguém recebe dois do mesmo tema
+  const blocos = [0, 1, 2, 3, 4].map(() => ({ usados: new Set(), ids: [] }));
+  for (const tipo of ["tf", "mc"]) {
+    const pool = baralhar(BANCO.filter(q => q.t === tipo), gerador(`${sala}:${tipo}:${g}`));
+    const livres = new Set(pool.map(q => q.id));
+    for (let r = 0; r < n; r++) for (const b of blocos) {
+      let q = pool.find(x => livres.has(x.id) && !b.usados.has(x.tema));
+      if (!q) q = pool.find(x => !b.usados.has(x.tema) && !b.ids.includes(x.id));   // reserva: pode coincidir com um colega do grupo
+      if (!q) continue;
+      livres.delete(q.id); b.usados.add(q.tema); b.ids.push(q.id);
+    }
+  }
+  return blocos[pos].ids;
 }
 // Monta a lista a partir dos ids: ordem das perguntas e das opções baralhada (sempre igual para a mesma semente)
 export function montar(ids, semente) {
