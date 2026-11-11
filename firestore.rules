@@ -10,7 +10,7 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.auth.uid == uid
         && sala.size() <= 12
-        && request.resource.data.keys().hasOnly(['nome', 'pontos', 'certas', 'respondidas', 'terminado', 'inicio', 'actualizado', 'fim', 'falhas', 'satisfacao', 'expira'])
+        && request.resource.data.keys().hasOnly(['nome', 'pontos', 'certas', 'respondidas', 'terminado', 'inicio', 'actualizado', 'fim', 'falhas', 'satisfacao', 'expira', 'antes', 'depois', 'intencao'])
         && request.resource.data.nome is string
         && request.resource.data.nome.size() >= 1
         && request.resource.data.nome.size() <= 30
@@ -26,7 +26,10 @@ service cloud.firestore {
         && request.resource.data.terminado is bool
         && (!('falhas' in request.resource.data) || (request.resource.data.falhas is list && request.resource.data.falhas.size() <= 12))
         && (!('satisfacao' in request.resource.data) || (request.resource.data.satisfacao is int && request.resource.data.satisfacao >= 1 && request.resource.data.satisfacao <= 5))
-        && (!('expira' in request.resource.data) || request.resource.data.expira is timestamp);
+        && (!('expira' in request.resource.data) || request.resource.data.expira is timestamp)
+        && (!('antes' in request.resource.data) || (request.resource.data.antes is int && request.resource.data.antes >= 1 && request.resource.data.antes <= 5))
+        && (!('depois' in request.resource.data) || (request.resource.data.depois is int && request.resource.data.depois >= 1 && request.resource.data.depois <= 5))
+        && (!('intencao' in request.resource.data) || request.resource.data.intencao in ['sim', 'talvez', 'ja', 'nao']);
 
       allow delete: if false;
     }

@@ -191,6 +191,9 @@ button { cursor: pointer; border: 0; color: inherit; background: none; }
 .stars button { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); color: var(--fg); font-size: 18px; font-weight: 700; box-shadow: inset 0 0 0 1px var(--line); }
 .stars button:hover { background: var(--pink); color: #000; }
 .rate-l { display: flex; justify-content: space-between; width: 272px; font-size: 12px; color: var(--faint); }
+.rate > .small { max-width: 320px; text-align: center; }
+.stars.wide { flex-wrap: wrap; justify-content: center; max-width: 340px; }
+.stars.wide button { width: auto; height: 44px; padding: 0 16px; border-radius: 999px; font-size: 15px; }
 /* Revisão: as perguntas que a sala mais falhou */
 .rev { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: clamp(14px, 2.4vh, 28px); padding-top: clamp(8px, 2vh, 24px); }
 .rev-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
@@ -493,7 +496,7 @@ function quizEntrar() {
     <form class="field" id="f-nome" novalidate>
       <label for="nome">${SALA ? "O seu primeiro nome" : "O seu nome"}</label>
       <input id="nome" name="nome" autocomplete="given-name" maxlength="30" required placeholder="Ex.: João" value="${esc(nomeGuardado)}">
-      ${SALA ? `<span class="privacy">O nome aparece só no ranking desta sessão e é apagado automaticamente ao fim de 30 dias. Pode usar só o primeiro nome ou uma alcunha.</span>` : ""}
+      ${SALA ? `<span class="privacy">O nome aparece só no ranking desta sessão e é apagado automaticamente ao fim de 30 dias, em conformidade com a Lei n.º 22/11, de 17 de Junho (Lei da Protecção de Dados Pessoais). Pode usar só o primeiro nome ou uma alcunha. As respostas ao inquérito final são anónimas.</span>` : ""}
     </form>
     <button class="btn" type="submit" form="f-nome" id="b-comecar">Começar</button>
     <p class="small" id="msg"></p>`, "#nome");
@@ -588,19 +591,38 @@ function fim() {
     <span class="eyebrow">${esc(Q.nome)}</span>
     <h1 class="big t1 grad">${Q.certas} / ${N_PERGUNTAS}</h1>
     ${SALA ? `<p class="lead"><b style="color:var(--fg)">${Q.pontos.toLocaleString("pt-PT")} pontos.</b> Olhe para o ecrã para ver o ranking.</p>
-              <div class="rate" id="rate"><p class="small" style="color:var(--muted)">Esta sessão foi útil para si?</p>
-                <div class="stars">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" aria-label="${n} de 5">${n}</button>`).join("")}</div>
-                <div class="rate-l"><span>Nada útil</span><span>Muito útil</span></div></div>`
+              <div class="rate" id="rate"></div>`
            : `<p class="lead">Agora já sabe mais. Partilhe estas respostas com os homens da sua família e com os colegas.</p>
               <button class="btn ghost" type="button" id="b-again">Jogar de novo</button>`}
     <p class="small">Prevenir é o melhor código. Faça o seu check-up.</p>`);
-  stage.querySelectorAll(".stars button").forEach(b => b.addEventListener("click", () => {
-    const n = +b.dataset.n;
-    if (Q.ref && fb) fb.fs.updateDoc(Q.ref, { satisfacao: n }).catch(() => {});
-    $("#rate").innerHTML = `<p class="small" style="color:var(--fg)">Obrigado pela sua opinião.</p>`;
-  }));
+  if (SALA) inquerito(0);
   const again = $("#b-again");
   if (again) again.addEventListener("click", () => { Q = { i: 0, pontos: 0, certas: 0, nome: Q.nome, ref: null, t0: 0, iniciado: false }; quizEntrar(); });
+}
+
+/* Inquérito de impacto (4 toques, um de cada vez):
+   conhecimento antes e depois (auto-avaliação retrospectiva), intenção de check-up e utilidade da sessão */
+const INQ = [
+  { k: "antes", p: "Antes desta sessão, quanto sabia sobre o cancro da próstata?", esc: ["Nada", "Muito"] },
+  { k: "depois", p: "E agora, quanto sabe?", esc: ["Nada", "Muito"] },
+  { k: "intencao", p: "Vai falar com o médico ou marcar o check-up nos próximos 3 meses?",
+    o: [["sim", "Sim"], ["talvez", "Talvez"], ["ja", "Já fiz este ano"], ["nao", "Não"]] },
+  { k: "satisfacao", p: "Esta sessão foi útil para si?", esc: ["Nada útil", "Muito útil"] }
+];
+function inquerito(n) {
+  const box = $("#rate"); if (!box) return;
+  if (n >= INQ.length) { box.innerHTML = `<p class="small" style="color:var(--fg)">Obrigado pelas suas respostas.</p>`; return; }
+  const it = INQ[n];
+  const botoes = it.o
+    ? `<div class="stars wide">${it.o.map(([v, t]) => `<button type="button" data-v="${v}">${t}</button>`).join("")}</div>`
+    : `<div class="stars">${[1,2,3,4,5].map(v => `<button type="button" data-v="${v}" aria-label="${v} de 5">${v}</button>`).join("")}</div>
+       <div class="rate-l"><span>${it.esc[0]}</span><span>${it.esc[1]}</span></div>`;
+  box.innerHTML = `<p class="small" style="color:var(--muted)">${n + 1} / ${INQ.length} · ${it.p}</p>${botoes}`;
+  box.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    const v = it.o ? b.dataset.v : +b.dataset.v;
+    if (Q.ref && fb) fb.fs.updateDoc(Q.ref, { [it.k]: v }).catch(() => {});
+    inquerito(n + 1);
+  }));
 }
 
 /* =====================================================
@@ -727,10 +749,17 @@ function mostrarPodio() {
     $("#w" + k).textContent = j ? j.nome : "—";
     $("#p" + k).textContent = j ? `${j.certas}/${N_PERGUNTAS} · ${j.pontos.toLocaleString("pt-PT")} pontos` : "";
   });
-  const notas = R.jogadores.map(j => j.satisfacao).filter(n => Number.isInteger(n) && n >= 1 && n <= 5);
-  $("#sat").textContent = notas.length
-    ? `Utilidade da sessão: ${(notas.reduce((a, b) => a + b, 0) / notas.length).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} / 5 (${notas.length} ${notas.length === 1 ? "resposta" : "respostas"})`
-    : "";
+  const nota = k => R.jogadores.map(j => j[k]).filter(n => Number.isInteger(n) && n >= 1 && n <= 5);
+  const media = a => (a.reduce((x, y) => x + y, 0) / a.length).toLocaleString("pt-PT", { maximumFractionDigits: 1 });
+  const partes = [];
+  const pares = R.jogadores.filter(j => Number.isInteger(j.antes) && Number.isInteger(j.depois));
+  if (pares.length) partes.push(`Conhecimento: ${media(pares.map(j => j.antes))} → ${media(pares.map(j => j.depois))} / 5`);
+  const int = R.jogadores.map(j => j.intencao).filter(v => ["sim", "talvez", "ja", "nao"].includes(v));
+  if (int.length) partes.push(`Check-up: ${Math.round(100 * int.filter(v => v === "sim" || v === "ja").length / int.length)}% vai marcar ou já fez`);
+  const notas = nota("satisfacao");
+  if (notas.length) partes.push(`Utilidade: ${media(notas)} / 5`);
+  const resp = Math.max(pares.length, int.length, notas.length);
+  $("#sat").textContent = partes.length ? `${partes.join(" · ")} (${resp} ${resp === 1 ? "resposta" : "respostas"})` : "";
   ir("podio");
 }
 $("#b-podio").addEventListener("click", () => { pararConta(); mostrarRevisao(); });
