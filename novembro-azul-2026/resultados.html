@@ -64,7 +64,7 @@ td.n, th.n { text-align: right }
       <h1>Resultados da campanha</h1>
       <p class="sub">Dados agregados de todas as sessões do quiz, lidos directamente da base de dados. Sem nomes.</p>
     </div>
-    <div class="selo"><img src="../assets/selo.png" alt="ConsultIT e Zentrix"></div>
+    <div class="selo"><img src="../assets/selo.png" alt="Consult.IT e Zentrix"></div>
   </header>
 
   <div class="bar-ctl">
@@ -93,7 +93,7 @@ import { firebaseConfig, configurado } from "./firebase-config.js";
 const $ = s => document.querySelector(s);
 const fmt = (n, d = 0) => Number(n).toLocaleString("pt-PT", { minimumFractionDigits: d, maximumFractionDigits: d });
 const media = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
-const EMP = { consultit: "consult.IT", zentrix: "Zentrix", "": "Sem empresa" };
+const EMP = { consultit: "Consult.IT", zentrix: "Zentrix", "": "Sem empresa" };
 let dados = [], resumo = [];
 
 async function carregar() {
